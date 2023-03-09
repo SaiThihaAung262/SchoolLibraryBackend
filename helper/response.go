@@ -1,7 +1,5 @@
 package helper
 
-import "MyGO.com/m/model"
-
 type Response struct {
 	ErrorCode    uint64      `json:"err_code"`
 	ErrorMessage string      `json:"err_msg"`
@@ -11,11 +9,6 @@ type Response struct {
 type ResponseErr struct {
 	ErrorCode    uint64 `json:"err_code"`
 	ErrorMessage string `json:"err_msg"`
-}
-
-type ResponseListData struct {
-	List  []model.User `json:"list"`
-	Total int64        `json:"total"`
 }
 
 type EmptyObj struct{}

@@ -40,7 +40,7 @@ func SetupDBConnection() *gorm.DB {
 	}
 
 	// errMigrate := db.AutoMigrate(&model.Robot{}, &model.User{}, &model.BinanceAPI{}, &model.Order{})
-	errMigrate := db.AutoMigrate(&model.User{})
+	errMigrate := db.AutoMigrate(&model.User{}, &model.BookCategory{})
 	if errMigrate != nil {
 		return nil
 	}

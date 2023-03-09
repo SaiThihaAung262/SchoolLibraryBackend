@@ -1,0 +1,101 @@
+package repository
+
+import (
+	"fmt"
+
+	"MyGO.com/m/dto"
+	"MyGO.com/m/model"
+	"gorm.io/gorm"
+)
+
+type BookCategoryRepository interface {
+	CreateBookCategory(bookcategory model.BookCategory) model.BookCategory
+	IsDuplicateCategoryTitle(title string) (tx *gorm.DB)
+	GetAllBookCategory(req *dto.BookCategoryGetRequest) ([]model.BookCategory, int64, error)
+	UpdateBookCategory(category model.BookCategory) model.BookCategory
+	DeleteBookCategory(id uint64) error
+}
+
+type bookCategoryConnection struct {
+	connection *gorm.DB
+}
+
+func NewBookCategoryRepository(db *gorm.DB) BookCategoryRepository {
+	return &bookCategoryConnection{
+		connection: db,
+	}
+}
+
+func (db *bookCategoryConnection) CreateBookCategory(bookcategory model.BookCategory) model.BookCategory {
+	err := db.connection.Save(&bookcategory)
+	if err != nil {
+		fmt.Println("------------Have error in create book category ------------")
+	}
+
+	return bookcategory
+}
+
+func (db *bookCategoryConnection) IsDuplicateCategoryTitle(title string) (tx *gorm.DB) {
+	var category model.BookCategory
+	return db.connection.Where("title = ?", title).Take(&category)
+}
+
+func (db *bookCategoryConnection) GetAllBookCategory(req *dto.BookCategoryGetRequest) ([]model.BookCategory, int64, error) {
+
+	var categories []model.BookCategory
+	var total int64
+
+	var offset uint64
+	var pageSize uint64
+
+	if req.Page != 0 {
+		offset = (req.Page - 1) * req.PageSize
+	} else {
+		offset = 0
+	}
+
+	if req.PageSize != 0 {
+		pageSize = req.PageSize
+	} else {
+		pageSize = 10
+	}
+
+	var filter string
+
+	if req.ID != 0 {
+		filter = fmt.Sprintf("where id = %v", req.ID)
+	}
+
+	sql := fmt.Sprintf("select * from book_categories %s limit %v offset %v", filter, pageSize, offset)
+	res := db.connection.Raw(sql).Scan(&categories)
+
+	countQuery := fmt.Sprintf("select count(1) from book_categories %s", filter)
+	if err := db.connection.Raw(countQuery).Scan(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if res.Error == nil {
+		return categories, total, nil
+	}
+
+	return nil, 0, nil
+}
+
+func (db *bookCategoryConnection) UpdateBookCategory(category model.BookCategory) model.BookCategory {
+	err := db.connection.Model(&category).Where("id = ?", category.ID).Updates(model.BookCategory{
+		Title:       category.Title,
+		Description: category.Description,
+	})
+	if err != nil {
+		fmt.Println("Error at update book category repository----")
+	}
+	return category
+}
+
+func (db *bookCategoryConnection) DeleteBookCategory(id uint64) error {
+	sql := fmt.Sprintf("delete from book_categories where id = %d", id)
+	if err := db.connection.Exec(sql); err != nil {
+		return err.Error
+	}
+	return nil
+}

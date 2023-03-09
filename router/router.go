@@ -22,6 +22,11 @@ var (
 	userService    service.UserService       = service.NewUserService(userRepository)
 	authController controller.AuthController = controller.NewAuthContrller(userService, jwtService)
 	userController controller.UserController = controller.NewUserController(userService, jwtService)
+
+	//BookCategory
+	bookCategoryRepository repository.BookCategoryRepository = repository.NewBookCategoryRepository(db)
+	bookCategoryService    service.BookCategoryService       = service.NewBookCategoryService(bookCategoryRepository)
+	bookCategoryController controller.BookCategoryController = controller.NewBookCategoryControlle(bookCategoryService)
 )
 
 func InitRoute() {
@@ -32,7 +37,7 @@ func InitRoute() {
 
 	apiRoutes := r.Group("/api")
 
-	//User routes
+	//User end points
 	userRoutes := apiRoutes.Group("auth")
 	{
 		userRoutes.POST("/register", authController.Register)
@@ -46,6 +51,15 @@ func InitRoute() {
 		userAdminRoutes.POST("/update-user", userController.UpdateUser)
 		userAdminRoutes.POST("/delete-use", userController.DeleteUser)
 
+	}
+
+	//Book Category end points
+	bookCategoryRoutes := apiRoutes.Group("book-category")
+	{
+		bookCategoryRoutes.POST("/create", bookCategoryController.CreateBookCategory)
+		bookCategoryRoutes.GET("/get-categories", bookCategoryController.GetAllBookCategory)
+		bookCategoryRoutes.POST("/update", bookCategoryController.UpdateBookCategory)
+		bookCategoryRoutes.POST("/delete", bookCategoryController.DeleteBookCategory)
 	}
 
 	panic(r.Run(":8090"))

@@ -6,6 +6,7 @@ import (
 
 	"MyGO.com/m/dto"
 	"MyGO.com/m/helper"
+	"MyGO.com/m/model"
 	"MyGO.com/m/service"
 	"github.com/gin-gonic/gin"
 )
@@ -14,6 +15,7 @@ type UserController interface {
 	GetAllUsers(ctx *gin.Context)
 	UpdateUser(ctx *gin.Context)
 	DeleteUser(ctx *gin.Context)
+	
 }
 
 type userController struct {
@@ -28,9 +30,12 @@ func NewUserController(userService service.UserService, jwtService service.JwtSe
 	}
 }
 
-func (c *userController) GetAllUsers(ctx *gin.Context) {
+type ResponseUserListData struct {
+	List  []model.User `json:"list"`
+	Total int64        `json:"total"`
+}
 
-	fmt.Println("Here in Get all user function controller")
+func (c *userController) GetAllUsers(ctx *gin.Context) {
 
 	req := &dto.UserGetRequest{}
 
@@ -54,7 +59,7 @@ func (c *userController) GetAllUsers(ctx *gin.Context) {
 		return
 	}
 
-	var responseList helper.ResponseListData
+	var responseList ResponseUserListData
 
 	responseList.List = result
 	responseList.Total = count

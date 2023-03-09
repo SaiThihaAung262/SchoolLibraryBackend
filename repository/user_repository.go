@@ -63,8 +63,8 @@ func (db *userConnection) GetAllUser(req *dto.UserGetRequest) ([]model.User, int
 		offset = (req.Page - 1) * req.PageSize
 	} else {
 		offset = 0
-
 	}
+
 	if req.PageSize != 0 {
 		pageSize = req.PageSize
 	} else {
