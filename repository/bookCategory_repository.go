@@ -99,11 +99,6 @@ func (db *bookCategoryConnection) UpdateBookCategory(category model.BookCategory
 }
 
 func (db *bookCategoryConnection) DeleteBookCategory(id uint64) error {
-	// sql := fmt.Sprintf("delete from book_categories where id = %d", id)
-	// if err := db.connection.Exec(sql); err != nil {
-	// 	return err.Error
-	// }
-	// return nil
 
 	mydb := db.connection.Model(&model.BookCategory{})
 	mydb = mydb.Where(fmt.Sprintf("id  = %d", id))

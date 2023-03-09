@@ -12,6 +12,8 @@ type BookRepository interface {
 	CreateBook(book model.Book) model.Book
 	IsBookTitleDuplicate(title string) (tx *gorm.DB)
 	GetAllBooks(req *dto.BookGetRequest) ([]model.Book, int64, error)
+	UpdateBook(book model.Book) model.Book
+	DeleteBook(id uint64) error
 }
 
 type bookConnection struct {
@@ -75,4 +77,28 @@ func (db *bookConnection) GetAllBooks(req *dto.BookGetRequest) ([]model.Book, in
 	}
 	return books, total, nil
 
+}
+
+func (db *bookConnection) UpdateBook(book model.Book) model.Book {
+	err := db.connection.Model(&book).Where("id = ?", book.ID).Updates(model.Book{
+		Title:      book.Title,
+		CategoryID: book.CategoryID,
+		Author:     book.Author,
+		Summary:    book.Summary,
+		Status:     book.Status,
+	})
+	if err != nil {
+		fmt.Println("----Here have error in update book repo -----")
+	}
+	return book
+}
+
+func (db *bookConnection) DeleteBook(id uint64) error {
+
+	mydb := db.connection.Model(&model.Book{})
+	mydb = mydb.Where(fmt.Sprintf("id  = %d", id))
+	if err := mydb.Delete(&model.Book{}).Error; err != nil {
+		return err
+	}
+	return nil
 }

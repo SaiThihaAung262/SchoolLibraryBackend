@@ -13,6 +13,8 @@ type BookService interface {
 	CreateBook(book dto.CreateBookDTO) model.Book
 	IsBookTitleDuplicate(title string) bool
 	GetAllBooks(req *dto.BookGetRequest) ([]model.Book, int64, error)
+	UpdateBook(book dto.UpdateBookDTO) model.Book
+	DeleteBook(id uint64) error
 }
 
 type bookService struct {
@@ -48,4 +50,21 @@ func (service bookService) GetAllBooks(req *dto.BookGetRequest) ([]model.Book, i
 		return nil, 0, err
 	}
 	return books, total, err
+}
+
+func (service bookService) UpdateBook(book dto.UpdateBookDTO) model.Book {
+	bookToUpdate := model.Book{}
+
+	err := smapping.FillStruct(&bookToUpdate, smapping.MapFields(book))
+	if err != nil {
+		fmt.Println("-------- Here have error in book service update -------")
+	}
+
+	res := service.bookRepository.UpdateBook(bookToUpdate)
+	return res
+}
+
+func (service bookService) DeleteBook(id uint64) error {
+	err := service.bookRepository.DeleteBook(id)
+	return err
 }

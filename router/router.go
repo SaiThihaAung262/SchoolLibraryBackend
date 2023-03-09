@@ -72,6 +72,8 @@ func InitRoute() {
 	{
 		bookRoutes.POST("/create", bookController.CreateBook)
 		bookRoutes.GET("/get-books", bookController.GetAllBooks)
+		bookRoutes.POST("/update", bookController.UpdateBook)
+		bookRoutes.POST("/delete", bookController.DeleteBook)
 	}
 
 	panic(r.Run(":8090"))
