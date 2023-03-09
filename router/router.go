@@ -27,6 +27,11 @@ var (
 	bookCategoryRepository repository.BookCategoryRepository = repository.NewBookCategoryRepository(db)
 	bookCategoryService    service.BookCategoryService       = service.NewBookCategoryService(bookCategoryRepository)
 	bookCategoryController controller.BookCategoryController = controller.NewBookCategoryControlle(bookCategoryService)
+
+	//Book endpoints
+	bookRepository repository.BookRepository = repository.NewBookRepository(db)
+	bookService    service.BookService       = service.NewBookService(bookRepository)
+	bookController controller.BookController = controller.NewBookController(bookService)
 )
 
 func InitRoute() {
@@ -60,6 +65,13 @@ func InitRoute() {
 		bookCategoryRoutes.GET("/get-categories", bookCategoryController.GetAllBookCategory)
 		bookCategoryRoutes.POST("/update", bookCategoryController.UpdateBookCategory)
 		bookCategoryRoutes.POST("/delete", bookCategoryController.DeleteBookCategory)
+	}
+
+	//Book end points
+	bookRoutes := apiRoutes.Group("book")
+	{
+		bookRoutes.POST("/create", bookController.CreateBook)
+		bookRoutes.GET("/get-books", bookController.GetAllBooks)
 	}
 
 	panic(r.Run(":8090"))

@@ -60,10 +60,16 @@ func (db *bookCategoryConnection) GetAllBookCategory(req *dto.BookCategoryGetReq
 		pageSize = 10
 	}
 
-	var filter string
+	// var filter string
+
+	filter := " where deleted_at IS NULL"
 
 	if req.ID != 0 {
-		filter = fmt.Sprintf("where id = %v", req.ID)
+		filter += fmt.Sprintf(" and id = %d", req.ID)
+	}
+
+	if req.Title != "" {
+		filter += fmt.Sprintf(" and title = %s", req.Title)
 	}
 
 	sql := fmt.Sprintf("select * from book_categories %s limit %v offset %v", filter, pageSize, offset)
@@ -93,9 +99,16 @@ func (db *bookCategoryConnection) UpdateBookCategory(category model.BookCategory
 }
 
 func (db *bookCategoryConnection) DeleteBookCategory(id uint64) error {
-	sql := fmt.Sprintf("delete from book_categories where id = %d", id)
-	if err := db.connection.Exec(sql); err != nil {
-		return err.Error
+	// sql := fmt.Sprintf("delete from book_categories where id = %d", id)
+	// if err := db.connection.Exec(sql); err != nil {
+	// 	return err.Error
+	// }
+	// return nil
+
+	mydb := db.connection.Model(&model.BookCategory{})
+	mydb = mydb.Where(fmt.Sprintf("id  = %d", id))
+	if err := mydb.Delete(&model.BookCategory{}).Error; err != nil {
+		return err
 	}
 	return nil
 }
