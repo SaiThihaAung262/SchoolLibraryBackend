@@ -6,6 +6,7 @@ import (
 	"MyGO.com/m/dto"
 	"MyGO.com/m/helper"
 	"MyGO.com/m/model"
+	"MyGO.com/m/repository/criteria"
 	"MyGO.com/m/service"
 	"github.com/gin-gonic/gin"
 )
@@ -41,14 +42,22 @@ func (c *bookCategoryController) CreateBookCategory(ctx *gin.Context) {
 		return
 	}
 
-	err := c.bookCategoryService.IsDuplicateCategoryTitle(createDto.Title)
-	if err {
-		response := helper.ResponseErrorData(500, "Title is duplicate")
+	createBookCategory, err := c.bookCategoryService.CreateBookCategory(createDto)
+	if err != nil {
+		if criteria.IsErrNotFound(err) {
+			response := helper.ResponseErrorData(500, "Cannot find")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+		if criteria.IsDuplicate(err) {
+			response := helper.ResponseErrorData(528, "This title already have!")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+		response := helper.ResponseErrorData(500, err.Error())
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
-
-	createBookCategory := c.bookCategoryService.CreateBookCategory(createDto)
 
 	response := helper.ResponseData(0, "success", createBookCategory)
 	ctx.JSON(http.StatusOK, response)
@@ -95,14 +104,22 @@ func (c *bookCategoryController) UpdateBookCategory(ctx *gin.Context) {
 		return
 	}
 
-	isDuplicate := c.bookCategoryService.IsDuplicateCategoryTitle(updateCategoryDto.Title)
-	if isDuplicate {
-		response := helper.ResponseErrorData(500, "This title already exits!")
+	updateCategory, err := c.bookCategoryService.UpdateBookCateogry(updateCategoryDto)
+	if err != nil {
+		if criteria.IsErrNotFound(err) {
+			response := helper.ResponseErrorData(500, "Cannot find")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+		if criteria.IsDuplicate(err) {
+			response := helper.ResponseErrorData(528, "This title already have!")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+		response := helper.ResponseErrorData(500, err.Error())
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
-
-	updateCategory := c.bookCategoryService.UpdateBookCateogry(updateCategoryDto)
 	response := helper.ResponseData(0, "success", updateCategory)
 	ctx.JSON(http.StatusOK, response)
 }

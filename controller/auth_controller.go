@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -37,15 +36,12 @@ func (c *authController) Register(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
-	err := c.userService.IsDuplicateEmail(registerDTO.Email)
-	fmt.Println("Here log the return err is true or false-------", err)
-	if err {
-		response := helper.ResponseErrorData(502, "Email is duplicate")
-		ctx.JSON(http.StatusOK, response)
-		return
-	}
 
-	createUser := c.userService.CreateUser(registerDTO)
+	createUser, err := c.userService.CreateUser(registerDTO)
+	if err != nil {
+		response := helper.ResponseErrorData(500, err.Error())
+		ctx.JSON(http.StatusOK, response)
+	}
 	generateToken := c.jwtService.GenerateToken(strconv.FormatUint(createUser.ID, 10))
 	createUser.Token = generateToken
 	response := helper.ResponseData(0, "Success", createUser)

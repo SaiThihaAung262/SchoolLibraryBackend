@@ -40,22 +40,23 @@ func (c *userController) CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	isNameDuplicate := c.userService.IsDuplicateName(registerDTO.Name)
-	if isNameDuplicate {
-		response := helper.ResponseErrorData(502, "Name is duplicate")
+	createUser, err := c.userService.CreateUser(registerDTO)
+	if err != nil {
+		if criteria.IsErrNotFound(err) {
+			response := helper.ResponseErrorData(500, "Cannot find")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+		if criteria.IsDuplicate(err) {
+			response := helper.ResponseErrorData(528, "Username or Email is Duplicate !")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+		response := helper.ResponseErrorData(500, err.Error())
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
-	isMailDuplicate := c.userService.IsDuplicateEmail(registerDTO.Email)
-	fmt.Println("Here log the return err is true or false-------", isMailDuplicate)
-	if isMailDuplicate {
-		response := helper.ResponseErrorData(502, "Email is duplicate")
-		ctx.JSON(http.StatusOK, response)
-		return
-	}
-
-	createUser := c.userService.CreateUser(registerDTO)
 	response := helper.ResponseData(0, "Success", createUser)
 	ctx.JSON(http.StatusOK, response)
 }
@@ -116,6 +117,11 @@ func (c *userController) UpdateUser(ctx *gin.Context) {
 			return
 		}
 
+		if criteria.IsDuplicate(err) {
+			response := helper.ResponseErrorData(528, "Username or Email is Duplicate !")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
 		response := helper.ResponseErrorData(500, err.Error())
 		ctx.JSON(http.StatusOK, response)
 		return

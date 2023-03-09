@@ -10,7 +10,7 @@ import (
 )
 
 type UserService interface {
-	CreateUser(user dto.RegisterDTO) model.User
+	CreateUser(user dto.RegisterDTO) (*model.User, error)
 	IsDuplicateEmail(email string) bool
 	IsDuplicateName(name string) bool
 	VerifyLogin(name string, password string) interface{}
@@ -30,14 +30,19 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 	}
 }
 
-func (service userService) CreateUser(user dto.RegisterDTO) model.User {
+func (service userService) CreateUser(user dto.RegisterDTO) (*model.User, error) {
 	userToCreate := model.User{}
 	err := smapping.FillStruct(&userToCreate, smapping.MapFields(&user))
 	if err != nil {
 		fmt.Println("--------Here is error in repository ------", err)
 	}
-	res := service.userRepo.InsertUser(userToCreate)
-	return res
+
+	res, errRepo := service.userRepo.InsertUser(userToCreate)
+	if errRepo != nil {
+		fmt.Println("----------Here is error in update service----------", err)
+		return nil, errRepo
+	}
+	return res, nil
 }
 
 func (service userService) IsDuplicateEmail(email string) bool {

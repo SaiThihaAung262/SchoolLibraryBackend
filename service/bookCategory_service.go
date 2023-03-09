@@ -10,10 +10,10 @@ import (
 )
 
 type BookCategoryService interface {
-	CreateBookCategory(book_category dto.CreateBookCategoryDTO) model.BookCategory
+	CreateBookCategory(book_category dto.CreateBookCategoryDTO) (*model.BookCategory, error)
 	IsDuplicateCategoryTitle(title string) bool
 	GetAllBookCategory(req *dto.BookCategoryGetRequest) ([]model.BookCategory, int64, error)
-	UpdateBookCateogry(category dto.UpdateBookCategoryDTO) model.BookCategory
+	UpdateBookCateogry(category dto.UpdateBookCategoryDTO) (*model.BookCategory, error)
 	DeleteBookCategory(id uint64) error
 }
 
@@ -27,14 +27,17 @@ func NewBookCategoryService(bookCategoryRepo repository.BookCategoryRepository) 
 	}
 }
 
-func (service bookCategoryService) CreateBookCategory(book_category dto.CreateBookCategoryDTO) model.BookCategory {
+func (service bookCategoryService) CreateBookCategory(book_category dto.CreateBookCategoryDTO) (*model.BookCategory, error) {
 	categoryToCreate := model.BookCategory{}
 	err := smapping.FillStruct(&categoryToCreate, smapping.MapFields(&book_category))
 	if err != nil {
 		fmt.Println("-----Here is error in category service -----", err)
 	}
-	res := service.bookCategoryRepo.CreateBookCategory(categoryToCreate)
-	return res
+	res, errRepo := service.bookCategoryRepo.CreateBookCategory(categoryToCreate)
+	if errRepo != nil {
+		return nil, errRepo
+	}
+	return res, nil
 }
 
 func (service bookCategoryService) IsDuplicateCategoryTitle(title string) bool {
@@ -53,16 +56,19 @@ func (service bookCategoryService) GetAllBookCategory(req *dto.BookCategoryGetRe
 	return categories, count, err
 }
 
-func (service bookCategoryService) UpdateBookCateogry(category dto.UpdateBookCategoryDTO) model.BookCategory {
+func (service bookCategoryService) UpdateBookCateogry(category dto.UpdateBookCategoryDTO) (*model.BookCategory, error) {
 	categoryToUpdate := model.BookCategory{}
 	err := smapping.FillStruct(&categoryToUpdate, smapping.MapFields(category))
 	if err != nil {
 		fmt.Println("------Have error in update bookcategory servcie ------", err.Error())
 	}
 
-	res := service.bookCategoryRepo.UpdateBookCategory(categoryToUpdate)
+	res, errRepo := service.bookCategoryRepo.UpdateBookCategory(categoryToUpdate)
+	if errRepo != nil {
+		return nil, errRepo
+	}
 
-	return res
+	return res, nil
 
 }
 

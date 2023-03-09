@@ -9,10 +9,10 @@ import (
 )
 
 type BookCategoryRepository interface {
-	CreateBookCategory(bookcategory model.BookCategory) model.BookCategory
+	CreateBookCategory(bookcategory model.BookCategory) (*model.BookCategory, error)
 	IsDuplicateCategoryTitle(title string) (tx *gorm.DB)
 	GetAllBookCategory(req *dto.BookCategoryGetRequest) ([]model.BookCategory, int64, error)
-	UpdateBookCategory(category model.BookCategory) model.BookCategory
+	UpdateBookCategory(category model.BookCategory) (*model.BookCategory, error)
 	DeleteBookCategory(id uint64) error
 }
 
@@ -26,13 +26,14 @@ func NewBookCategoryRepository(db *gorm.DB) BookCategoryRepository {
 	}
 }
 
-func (db *bookCategoryConnection) CreateBookCategory(bookcategory model.BookCategory) model.BookCategory {
-	err := db.connection.Save(&bookcategory)
+func (db *bookCategoryConnection) CreateBookCategory(bookcategory model.BookCategory) (*model.BookCategory, error) {
+	err := db.connection.Save(&bookcategory).Error
 	if err != nil {
 		fmt.Println("------------Have error in create book category ------------")
+		return nil, err
 	}
 
-	return bookcategory
+	return &bookcategory, nil
 }
 
 func (db *bookCategoryConnection) IsDuplicateCategoryTitle(title string) (tx *gorm.DB) {
@@ -87,15 +88,16 @@ func (db *bookCategoryConnection) GetAllBookCategory(req *dto.BookCategoryGetReq
 	return nil, 0, nil
 }
 
-func (db *bookCategoryConnection) UpdateBookCategory(category model.BookCategory) model.BookCategory {
+func (db *bookCategoryConnection) UpdateBookCategory(category model.BookCategory) (*model.BookCategory, error) {
 	err := db.connection.Model(&category).Where("id = ?", category.ID).Updates(model.BookCategory{
 		Title:       category.Title,
 		Description: category.Description,
-	})
+	}).Error
 	if err != nil {
 		fmt.Println("Error at update book category repository----")
+		return nil, err
 	}
-	return category
+	return &category, nil
 }
 
 func (db *bookCategoryConnection) DeleteBookCategory(id uint64) error {

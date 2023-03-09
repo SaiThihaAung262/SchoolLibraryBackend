@@ -9,7 +9,7 @@ import (
 )
 
 type UserRepository interface {
-	InsertUser(user model.User) model.User
+	InsertUser(user model.User) (*model.User, error)
 	IsDuplicateEmail(email string) (tx *gorm.DB)
 	IsDuplicateName(name string) (tx *gorm.DB)
 	VerifyLogin(name string) interface{}
@@ -29,12 +29,13 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	}
 }
 
-func (db *userConnection) InsertUser(user model.User) model.User {
-	err := db.connection.Save(&user)
+func (db *userConnection) InsertUser(user model.User) (*model.User, error) {
+	err := db.connection.Save(&user).Error
 	if err != nil {
 		fmt.Println("------------Here is error in user repository--------------", err)
+		return nil, err
 	}
-	return user
+	return &user, nil
 }
 
 func (db *userConnection) VerifyLogin(name string) interface{} {
