@@ -5,7 +5,6 @@ import (
 
 	"MyGO.com/m/config"
 	"MyGO.com/m/controller"
-	"MyGO.com/m/middleware"
 	"MyGO.com/m/repository"
 	"MyGO.com/m/service"
 	"github.com/gin-gonic/gin"
@@ -50,11 +49,12 @@ func InitRoute() {
 	}
 
 	userAdminRoutes := apiRoutes.Group("users")
-	userAdminRoutes.Use(middleware.AuthorizeJWT(jwtService))
+	// userAdminRoutes.Use(middleware.AuthorizeJWT(jwtService))
 	{
-		userAdminRoutes.GET("/get-all-users", userController.GetAllUsers)
-		userAdminRoutes.POST("/update-user", userController.UpdateUser)
-		userAdminRoutes.POST("/delete-use", userController.DeleteUser)
+		userAdminRoutes.POST("/create", userController.CreateUser)
+		userAdminRoutes.GET("/get-users", userController.GetAllUsers)
+		userAdminRoutes.POST("/update", userController.UpdateUser)
+		userAdminRoutes.POST("/delete", userController.DeleteUser)
 
 	}
 

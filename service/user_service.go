@@ -12,9 +12,10 @@ import (
 type UserService interface {
 	CreateUser(user dto.RegisterDTO) model.User
 	IsDuplicateEmail(email string) bool
+	IsDuplicateName(name string) bool
 	VerifyLogin(name string, password string) interface{}
 	GetAllUsers(req *dto.UserGetRequest) ([]model.User, int64, error)
-	UpdateUser(user dto.UpdateUserDto) model.User
+	UpdateUser(user dto.UpdateUserDto) (*model.User, error)
 	IsUserExist(id uint64) bool
 	DeleteUser(id uint64) error
 }
@@ -46,10 +47,17 @@ func (service userService) IsDuplicateEmail(email string) bool {
 	return (res.Error == nil)
 }
 
+func (service userService) IsDuplicateName(name string) bool {
+	res := service.userRepo.IsDuplicateName(name)
+	fmt.Println("____________res____________", res.Error)
+	return (res.Error == nil)
+}
+
 func (service userService) VerifyLogin(name string, password string) interface{} {
 	res := service.userRepo.VerifyLogin(name)
 	if v, ok := res.(model.User); ok {
-		isPassword := comparePassword(password, v.Password)
+		// isPassword := comparePassword(password, v.Password)
+		isPassword := password == v.Password
 		if v.Name == name && isPassword {
 			return res
 		}
@@ -58,12 +66,9 @@ func (service userService) VerifyLogin(name string, password string) interface{}
 	return false
 }
 
-func comparePassword(enterPass string, resPassword string) bool {
-	if enterPass == resPassword {
-		return true
-	}
-	return false
-}
+// func comparePassword(enterPass string, resPassword string) bool {
+// 	return enterPass == resPassword
+// }
 
 func (service userService) GetAllUsers(req *dto.UserGetRequest) ([]model.User, int64, error) {
 	users, count, errr := service.userRepo.GetAllUser(req)
@@ -73,14 +78,18 @@ func (service userService) GetAllUsers(req *dto.UserGetRequest) ([]model.User, i
 	return users, count, nil
 }
 
-func (service userService) UpdateUser(user dto.UpdateUserDto) model.User {
+func (service userService) UpdateUser(user dto.UpdateUserDto) (*model.User, error) {
 	userToUpdate := model.User{}
 	err := smapping.FillStruct(&userToUpdate, smapping.MapFields(&user))
 	if err != nil {
 		fmt.Println("----------Here is error in update service----------", err.Error())
 	}
-	res := service.userRepo.UpdateUser(userToUpdate)
-	return res
+	res, err := service.userRepo.UpdateUser(userToUpdate)
+	if err != nil {
+		fmt.Println("----------Here is error in update service----------", err)
+		return nil, err
+	}
+	return res, nil
 }
 
 func (service userService) IsUserExist(id uint64) bool {

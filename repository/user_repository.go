@@ -11,9 +11,10 @@ import (
 type UserRepository interface {
 	InsertUser(user model.User) model.User
 	IsDuplicateEmail(email string) (tx *gorm.DB)
+	IsDuplicateName(name string) (tx *gorm.DB)
 	VerifyLogin(name string) interface{}
 	GetAllUser(req *dto.UserGetRequest) ([]model.User, int64, error)
-	UpdateUser(user model.User) model.User
+	UpdateUser(user model.User) (*model.User, error)
 	IsUserExist(id uint64) (tx *gorm.DB)
 	DeleteUser(id uint64) error
 }
@@ -34,12 +35,6 @@ func (db *userConnection) InsertUser(user model.User) model.User {
 		fmt.Println("------------Here is error in user repository--------------", err)
 	}
 	return user
-}
-
-func (db *userConnection) IsDuplicateEmail(email string) (tx *gorm.DB) {
-	var user model.User
-	return db.connection.Where("email = ?", email).Take(&user)
-
 }
 
 func (db *userConnection) VerifyLogin(name string) interface{} {
@@ -98,13 +93,16 @@ func (db *userConnection) IsUserExist(id uint64) (tx *gorm.DB) {
 	return db.connection.Where("id = ?", id).Take(&user)
 }
 
-func (db *userConnection) UpdateUser(user model.User) model.User {
+func (db *userConnection) UpdateUser(user model.User) (*model.User, error) {
 
-	err := db.connection.Model(&user).Where("id = ?", user.ID).Updates(model.User{Name: user.Name, Email: user.Email, Password: user.Password})
+	fmt.Println("-----------------Here is error in update user id ------------------", user.ID)
+
+	err := db.connection.Model(&user).Where("id = ?", user.ID).Updates(model.User{Name: user.Name, Email: user.Email, Password: user.Password}).Error
 	if err != nil {
-		fmt.Println("-----------------Here is error in update user repository ------------------")
+		fmt.Println("-----------------Here is error in update user repository ------------------", err)
+		return nil, err
 	}
-	return user
+	return &user, nil
 }
 
 func (db *userConnection) DeleteUser(id uint64) error {
@@ -115,4 +113,15 @@ func (db *userConnection) DeleteUser(id uint64) error {
 	}
 
 	return nil
+}
+
+func (db *userConnection) IsDuplicateEmail(email string) (tx *gorm.DB) {
+	var user model.User
+	return db.connection.Where("email = ?", email).Take(&user)
+
+}
+
+func (db *userConnection) IsDuplicateName(name string) (tx *gorm.DB) {
+	var user model.User
+	return db.connection.Where("name = ?", name).Take(&user)
 }

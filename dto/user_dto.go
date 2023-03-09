@@ -17,11 +17,15 @@ type UserGetRequest struct {
 	ID       uint64 `json:"id" form:"id"`
 }
 
+type CreateUserDto struct {
+	Name     string `json:"name" form:"name" binding:"required"`
+	Emial    string `json:"email" form:"email" binding:"required"`
+	Password string `json:"password" form:"password" binding:"required"`
+}
+
 type UpdateUserDto struct {
 	ID       uint64 `json:"id" form:"id" binding:"required"`
 	Name     string `json:"name" form:"name" binding:"required"`
 	Email    string `json:"email" form:"email" binding:"required"`
 	Password string `json:"password" form:"password" binding:"required"`
 }
-
-

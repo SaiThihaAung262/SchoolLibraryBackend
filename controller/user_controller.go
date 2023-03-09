@@ -7,15 +7,16 @@ import (
 	"MyGO.com/m/dto"
 	"MyGO.com/m/helper"
 	"MyGO.com/m/model"
+	"MyGO.com/m/repository/criteria"
 	"MyGO.com/m/service"
 	"github.com/gin-gonic/gin"
 )
 
 type UserController interface {
+	CreateUser(ctx *gin.Context)
 	GetAllUsers(ctx *gin.Context)
 	UpdateUser(ctx *gin.Context)
 	DeleteUser(ctx *gin.Context)
-	
 }
 
 type userController struct {
@@ -28,6 +29,35 @@ func NewUserController(userService service.UserService, jwtService service.JwtSe
 		userService: userService,
 		jwtService:  jwtService,
 	}
+}
+
+func (c *userController) CreateUser(ctx *gin.Context) {
+	var registerDTO dto.RegisterDTO
+	errDTO := ctx.ShouldBind(&registerDTO)
+	if errDTO != nil {
+		response := helper.ResponseErrorData(501, errDTO.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	isNameDuplicate := c.userService.IsDuplicateName(registerDTO.Name)
+	if isNameDuplicate {
+		response := helper.ResponseErrorData(502, "Name is duplicate")
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	isMailDuplicate := c.userService.IsDuplicateEmail(registerDTO.Email)
+	fmt.Println("Here log the return err is true or false-------", isMailDuplicate)
+	if isMailDuplicate {
+		response := helper.ResponseErrorData(502, "Email is duplicate")
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	createUser := c.userService.CreateUser(registerDTO)
+	response := helper.ResponseData(0, "Success", createUser)
+	ctx.JSON(http.StatusOK, response)
 }
 
 type ResponseUserListData struct {
@@ -47,14 +77,14 @@ func (c *userController) GetAllUsers(ctx *gin.Context) {
 
 	result, count, err := c.userService.GetAllUsers(req)
 
-	if count == 0 {
-		response := helper.ResponseErrorData(512, "Record not found")
+	if err != nil {
+		response := helper.ResponseErrorData(500, err.Error())
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
-	if err != nil {
-		response := helper.ResponseErrorData(500, err.Error())
+	if count == 0 {
+		response := helper.ResponseErrorData(512, "Record not found")
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
@@ -73,27 +103,25 @@ func (c *userController) UpdateUser(ctx *gin.Context) {
 	var updateUserDto dto.UpdateUserDto
 	errDTO := ctx.ShouldBind(&updateUserDto)
 	if errDTO != nil {
-		fmt.Println("Chee pare ma bind twar bu")
 		response := helper.ResponseErrorData(503, errDTO.Error())
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
-	isExit := c.userService.IsUserExist(updateUserDto.ID)
-	if !isExit {
-		response := helper.ResponseErrorData(502, "Record not found !")
+	updateUser, err := c.userService.UpdateUser(updateUserDto)
+	if err != nil {
+		if criteria.IsErrNotFound(err) {
+			response := helper.ResponseErrorData(500, "Cannot find")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+
+		response := helper.ResponseErrorData(500, err.Error())
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
-	isDuplicate := c.userService.IsDuplicateEmail(updateUserDto.Email)
-	if isDuplicate {
-		response := helper.ResponseErrorData(502, "Email Already Exit !")
-		ctx.JSON(http.StatusOK, response)
-		return
-	}
-
-	updateUser := c.userService.UpdateUser(updateUserDto)
+	fmt.Println("-------Here is updated user-----", updateUser)
 	response := helper.ResponseData(0, "Success", updateUser)
 	ctx.JSON(http.StatusOK, response)
 
