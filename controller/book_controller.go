@@ -6,6 +6,7 @@ import (
 	"MyGO.com/m/dto"
 	"MyGO.com/m/helper"
 	"MyGO.com/m/model"
+	"MyGO.com/m/repository/criteria"
 	"MyGO.com/m/service"
 	"github.com/gin-gonic/gin"
 )
@@ -37,14 +38,29 @@ func (c bookController) CreateBook(ctx *gin.Context) {
 		return
 	}
 
-	isDuplicateTitle := c.bookService.IsBookTitleDuplicate(bookToCreate.Title)
-	if isDuplicateTitle {
-		response := helper.ResponseErrorData(500, "The title with this book is already exit !")
+	// isDuplicateTitle := c.bookService.IsBookTitleDuplicate(bookToCreate.Title)
+	// if isDuplicateTitle {
+	// 	response := helper.ResponseErrorData(500, "The title with this book is already exit !")
+	// 	ctx.JSON(http.StatusOK, response)
+	// 	return
+	// }
+
+	createdBook, err := c.bookService.CreateBook(bookToCreate)
+	if err != nil {
+		if criteria.IsErrNotFound(err) {
+			response := helper.ResponseErrorData(500, "Cannot find")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+		if criteria.IsDuplicate(err) {
+			response := helper.ResponseErrorData(528, "This title already have!")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+		response := helper.ResponseErrorData(500, err.Error())
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
-
-	createdBook := c.bookService.CreateBook(bookToCreate)
 	response := helper.ResponseData(0, "success", createdBook)
 	ctx.JSON(http.StatusOK, response)
 
@@ -95,13 +111,28 @@ func (c bookController) UpdateBook(ctx *gin.Context) {
 		return
 	}
 
-	isDuplicate := c.bookService.IsBookTitleDuplicate(bookToUpdate.Title)
-	if isDuplicate {
-		response := helper.ResponseErrorData(500, "The title with this book is already exit !")
+	// isDuplicate := c.bookService.IsBookTitleDuplicate(bookToUpdate.Title)
+	// if isDuplicate {
+	// 	response := helper.ResponseErrorData(500, "The title with this book is already exit !")
+	// 	ctx.JSON(http.StatusOK, response)
+	// 	return
+	// }
+	updatedBook, err := c.bookService.UpdateBook(bookToUpdate)
+	if err != nil {
+		if criteria.IsErrNotFound(err) {
+			response := helper.ResponseErrorData(500, "Cannot find")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+		if criteria.IsDuplicate(err) {
+			response := helper.ResponseErrorData(528, "This title already have!")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+		response := helper.ResponseErrorData(500, err.Error())
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
-	updatedBook := c.bookService.UpdateBook(bookToUpdate)
 	response := helper.ResponseData(0, "success", updatedBook)
 	ctx.JSON(http.StatusOK, response)
 }

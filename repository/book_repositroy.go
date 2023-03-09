@@ -9,10 +9,10 @@ import (
 )
 
 type BookRepository interface {
-	CreateBook(book model.Book) model.Book
+	CreateBook(book model.Book) (*model.Book, error)
 	IsBookTitleDuplicate(title string) (tx *gorm.DB)
 	GetAllBooks(req *dto.BookGetRequest) ([]model.Book, int64, error)
-	UpdateBook(book model.Book) model.Book
+	UpdateBook(book model.Book) (*model.Book, error)
 	DeleteBook(id uint64) error
 }
 
@@ -26,12 +26,13 @@ func NewBookRepository(db *gorm.DB) BookRepository {
 	}
 }
 
-func (db *bookConnection) CreateBook(book model.Book) model.Book {
-	err := db.connection.Save(&book)
+func (db *bookConnection) CreateBook(book model.Book) (*model.Book, error) {
+	err := db.connection.Save(&book).Error
 	if err != nil {
 		fmt.Println("Here have error in create book repo")
+		return nil, err
 	}
-	return book
+	return &book, nil
 }
 
 func (db *bookConnection) IsBookTitleDuplicate(title string) (tx *gorm.DB) {
@@ -79,18 +80,20 @@ func (db *bookConnection) GetAllBooks(req *dto.BookGetRequest) ([]model.Book, in
 
 }
 
-func (db *bookConnection) UpdateBook(book model.Book) model.Book {
+func (db *bookConnection) UpdateBook(book model.Book) (*model.Book, error) {
 	err := db.connection.Model(&book).Where("id = ?", book.ID).Updates(model.Book{
 		Title:      book.Title,
 		CategoryID: book.CategoryID,
 		Author:     book.Author,
 		Summary:    book.Summary,
 		Status:     book.Status,
-	})
+	}).Error
 	if err != nil {
 		fmt.Println("----Here have error in update book repo -----")
+		return nil, err
+
 	}
-	return book
+	return &book, nil
 }
 
 func (db *bookConnection) DeleteBook(id uint64) error {

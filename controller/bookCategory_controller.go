@@ -42,7 +42,7 @@ func (c *bookCategoryController) CreateBookCategory(ctx *gin.Context) {
 		return
 	}
 
-	createBookCategory, err := c.bookCategoryService.CreateBookCategory(createDto)
+	_, err := c.bookCategoryService.CreateBookCategory(createDto)
 	if err != nil {
 		if criteria.IsErrNotFound(err) {
 			response := helper.ResponseErrorData(500, "Cannot find")
@@ -59,7 +59,7 @@ func (c *bookCategoryController) CreateBookCategory(ctx *gin.Context) {
 		return
 	}
 
-	response := helper.ResponseData(0, "success", createBookCategory)
+	response := helper.ResponseData(0, "success", nil)
 	ctx.JSON(http.StatusOK, response)
 }
 
@@ -104,7 +104,7 @@ func (c *bookCategoryController) UpdateBookCategory(ctx *gin.Context) {
 		return
 	}
 
-	updateCategory, err := c.bookCategoryService.UpdateBookCateogry(updateCategoryDto)
+	_, err := c.bookCategoryService.UpdateBookCateogry(updateCategoryDto)
 	if err != nil {
 		if criteria.IsErrNotFound(err) {
 			response := helper.ResponseErrorData(500, "Cannot find")
@@ -120,7 +120,7 @@ func (c *bookCategoryController) UpdateBookCategory(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
-	response := helper.ResponseData(0, "success", updateCategory)
+	response := helper.ResponseData(0, "success", nil)
 	ctx.JSON(http.StatusOK, response)
 }
 

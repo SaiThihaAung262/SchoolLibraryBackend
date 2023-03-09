@@ -36,11 +36,10 @@ func (service userService) CreateUser(user dto.RegisterDTO) (*model.User, error)
 	if err != nil {
 		fmt.Println("--------Here is error in repository ------", err)
 	}
-
-	res, errRepo := service.userRepo.InsertUser(userToCreate)
-	if errRepo != nil {
+	res, err := service.userRepo.InsertUser(userToCreate)
+	if err != nil {
 		fmt.Println("----------Here is error in update service----------", err)
-		return nil, errRepo
+		return nil, err
 	}
 	return res, nil
 }

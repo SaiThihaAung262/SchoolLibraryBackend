@@ -10,10 +10,10 @@ import (
 )
 
 type BookService interface {
-	CreateBook(book dto.CreateBookDTO) model.Book
+	CreateBook(book dto.CreateBookDTO) (*model.Book, error)
 	IsBookTitleDuplicate(title string) bool
 	GetAllBooks(req *dto.BookGetRequest) ([]model.Book, int64, error)
-	UpdateBook(book dto.UpdateBookDTO) model.Book
+	UpdateBook(book dto.UpdateBookDTO) (*model.Book, error)
 	DeleteBook(id uint64) error
 }
 
@@ -28,14 +28,17 @@ func NewBookService(bookRepository repository.BookRepository) BookService {
 
 }
 
-func (service bookService) CreateBook(book dto.CreateBookDTO) model.Book {
+func (service bookService) CreateBook(book dto.CreateBookDTO) (*model.Book, error) {
 	bookToCreate := model.Book{}
 	err := smapping.FillStruct(&bookToCreate, smapping.MapFields(book))
 	if err != nil {
 		fmt.Println("Here have error in Create book service")
 	}
-	res := service.bookRepository.CreateBook(bookToCreate)
-	return res
+	res, errRepo := service.bookRepository.CreateBook(bookToCreate)
+	if errRepo != nil {
+		return nil, errRepo
+	}
+	return res, nil
 
 }
 
@@ -52,7 +55,7 @@ func (service bookService) GetAllBooks(req *dto.BookGetRequest) ([]model.Book, i
 	return books, total, err
 }
 
-func (service bookService) UpdateBook(book dto.UpdateBookDTO) model.Book {
+func (service bookService) UpdateBook(book dto.UpdateBookDTO) (*model.Book, error) {
 	bookToUpdate := model.Book{}
 
 	err := smapping.FillStruct(&bookToUpdate, smapping.MapFields(book))
@@ -60,8 +63,11 @@ func (service bookService) UpdateBook(book dto.UpdateBookDTO) model.Book {
 		fmt.Println("-------- Here have error in book service update -------")
 	}
 
-	res := service.bookRepository.UpdateBook(bookToUpdate)
-	return res
+	res, errRepo := service.bookRepository.UpdateBook(bookToUpdate)
+	if errRepo != nil {
+		return nil, errRepo
+	}
+	return res, nil
 }
 
 func (service bookService) DeleteBook(id uint64) error {
