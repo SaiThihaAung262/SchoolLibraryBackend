@@ -6,6 +6,7 @@ type CreateBookDTO struct {
 	Status     uint64 `json:"status" form:"status" binding:"required"`
 	Author     string `json:"author" form:"author" binding:"required"`
 	Summary    string `json:"summary" from:"summary" binding:"required"`
+	BookImage  string `json:"book_image" form:"book_image"`
 }
 
 type BookGetRequest struct {
@@ -24,4 +25,5 @@ type UpdateBookDTO struct {
 	Status     uint64 `json:"status" form:"status" binding:"required"`
 	Author     string `json:"author" form:"author" binding:"required"`
 	Summary    string `json:"summary" from:"summary" binding:"required"`
+	BookImage  string `json:"book_image" form:"book_image"`
 }

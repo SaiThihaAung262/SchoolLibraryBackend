@@ -87,6 +87,7 @@ func (db *bookConnection) UpdateBook(book model.Book) (*model.Book, error) {
 		Author:     book.Author,
 		Summary:    book.Summary,
 		Status:     book.Status,
+		BookImage:  book.BookImage,
 	}).Error
 	if err != nil {
 		fmt.Println("----Here have error in update book repo -----")

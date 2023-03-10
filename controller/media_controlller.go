@@ -33,12 +33,10 @@ func CreateFileName(ext string) string {
 }
 
 func (c mediaController) CreateMedia(ctx *gin.Context) {
-	// admin := c.MustGet("admin").(*model.Admin)
-
-	pwd, _ := os.Getwd()
-	fmt.Println("here is my file path", pwd)
-
+	// pwd, _ := os.Getwd()
+	// fmt.Println("here is my file path", pwd)
 	// dst := pwd
+
 	dst := "/Users/thihaaung/Documents/SchoolLibraryProject"
 
 	file, err := ctx.FormFile("file")
@@ -67,25 +65,23 @@ func (c mediaController) CreateMedia(ctx *gin.Context) {
 	if err != nil {
 		defer os.Remove(fileLocation)
 
-		fmt.Println("<<<<<<<<Error Saving file>>>>>>>>>>", err)
+		fmt.Println("Error Saving file>>>>>>>>>>", err)
 		respone := helper.ResponseErrorData(500, "ERROR_SAVING_FILE")
 		ctx.JSON(500, respone)
 		return
 	}
-	url := fmt.Sprintf("https://%v/api/media/%v", ctx.Request.Host, filename)
+	url := fmt.Sprintf("/Users/thihaaung/Documents/SchoolLibraryProject/images/%v", filename)
 
 	media := model.Media{
 		FileName:  filename,
 		URL:       url,
 		Extension: strings.Replace(extension, ".", "", 1),
 		Type:      types[0],
-		// BookId:    admin.Id,
 	}
 
 	createMedia, err := c.mediaService.CreateMedia(&media)
 	if err != nil {
 		defer os.Remove(fileLocation)
-
 		response := helper.ResponseErrorData(500, "ERROR_READING_FILE")
 		ctx.JSON(200, response)
 		return

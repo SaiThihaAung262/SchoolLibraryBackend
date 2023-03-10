@@ -13,6 +13,7 @@ type Book struct {
 	Author     string `gorm:"type:varchar(250)" json:"author"`
 	Summary    string `gorm:"type:varchar(250)" josn:"summary"`
 	Status     uint64 `gorm:"column:status;not null" json:"status"`
+	BookImage  string `gorm:"type:varchar(250)" json:"book_image"`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	DeletedAt  gorm.DeletedAt `json:"-"`
