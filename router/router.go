@@ -27,10 +27,15 @@ var (
 	bookCategoryService    service.BookCategoryService       = service.NewBookCategoryService(bookCategoryRepository)
 	bookCategoryController controller.BookCategoryController = controller.NewBookCategoryControlle(bookCategoryService)
 
-	//Book endpoints
+	//Book
 	bookRepository repository.BookRepository = repository.NewBookRepository(db)
 	bookService    service.BookService       = service.NewBookService(bookRepository)
 	bookController controller.BookController = controller.NewBookController(bookService)
+
+	//Media
+	mediaRepository repository.MediaRepository = repository.NewMediaRepository(db)
+	mediaService    service.MedeiaService      = service.NewMediaService(mediaRepository)
+	mediaController controller.MediaController = controller.NewMediaController(mediaService)
 )
 
 func InitRoute() {
@@ -74,6 +79,12 @@ func InitRoute() {
 		bookRoutes.GET("/get-books", bookController.GetAllBooks)
 		bookRoutes.POST("/update", bookController.UpdateBook)
 		bookRoutes.POST("/delete", bookController.DeleteBook)
+	}
+
+	//Media end points
+	mediaRoutes := apiRoutes.Group("media")
+	{
+		mediaRoutes.POST("/upload", mediaController.CreateMedia)
 	}
 
 	panic(r.Run(":8090"))
