@@ -39,7 +39,8 @@ func SetupDBConnection() *gorm.DB {
 		panic("Failed to create a connection to database")
 	}
 
-	errMigrate := db.AutoMigrate(&model.User{}, &model.BookCategory{}, &model.Book{}, &model.Media{})
+	errMigrate := db.AutoMigrate(&model.User{}, &model.BookCategory{}, &model.Book{}, &model.Media{}, &model.Client{})
+
 	if errMigrate != nil {
 		return nil
 	}

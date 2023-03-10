@@ -22,6 +22,11 @@ var (
 	authController controller.AuthController = controller.NewAuthContrller(userService, jwtService)
 	userController controller.UserController = controller.NewUserController(userService, jwtService)
 
+	//Client User
+	clientRepository repository.ClientRepository = repository.NewClientRepository(db)
+	clientService    service.ClientService       = service.NewClientService(clientRepository)
+	clientController controller.ClientController = controller.NewClientController(clientService, jwtService)
+
 	//BookCategory
 	bookCategoryRepository repository.BookCategoryRepository = repository.NewBookCategoryRepository(db)
 	bookCategoryService    service.BookCategoryService       = service.NewBookCategoryService(bookCategoryRepository)
@@ -60,6 +65,12 @@ func InitRoute() {
 		userAdminRoutes.GET("/get-users", userController.GetAllUsers)
 		userAdminRoutes.POST("/update", userController.UpdateUser)
 		userAdminRoutes.POST("/delete", userController.DeleteUser)
+
+	}
+
+	clientUserRoutes := apiRoutes.Group("client-users")
+	{
+		clientUserRoutes.POST("/create", clientController.CreateClient)
 
 	}
 
