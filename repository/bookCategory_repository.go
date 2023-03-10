@@ -70,7 +70,8 @@ func (db *bookCategoryConnection) GetAllBookCategory(req *dto.BookCategoryGetReq
 	}
 
 	if req.Title != "" {
-		filter += fmt.Sprintf(" and title = %s", req.Title)
+		// filter += fmt.Sprintf(" and title = %s", req.Title)
+		filter += fmt.Sprintf(" and title LIKE \"%s%s%s\"", "%", req.Title, "%")
 	}
 
 	sql := fmt.Sprintf("select * from book_categories %s limit %v offset %v", filter, pageSize, offset)

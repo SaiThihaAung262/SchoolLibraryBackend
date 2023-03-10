@@ -49,6 +49,11 @@ func (c *authController) Register(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+type LoginResponse struct {
+	Name  string `json:"name"`
+	Token string `json:"token"`
+}
+
 func (c *authController) Login(ctx *gin.Context) {
 	var loginDTO dto.LoginDTO
 	errDTO := ctx.ShouldBind(&loginDTO)
@@ -58,10 +63,16 @@ func (c *authController) Login(ctx *gin.Context) {
 		return
 	}
 	loginResult := c.userService.VerifyLogin(loginDTO.Name, loginDTO.Password)
+
 	if v, ok := loginResult.(model.User); ok {
 		generateToken := c.jwtService.GenerateToken(strconv.FormatUint(v.ID, 10))
-		v.Token = generateToken
-		response := helper.ResponseData(0, "Login successfull", v)
+		// v.Token =
+		responseData := LoginResponse{
+			Name:  v.Name,
+			Token: generateToken,
+		}
+
+		response := helper.ResponseData(0, "Login successfull", responseData)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}

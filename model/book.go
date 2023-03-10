@@ -11,7 +11,7 @@ type Book struct {
 	CategoryID uint64 `gorm:"column:category_id;not null" json:"category_id"`
 	Title      string `gorm:"unique;not null" json:"title"`
 	Author     string `gorm:"type:varchar(250)" json:"author"`
-	Summary    string `gorm:"type:varchar(250)" josn:"summary"`
+	Summary    string `gorm:"type:varchar(250)" json:"summary"`
 	Status     uint64 `gorm:"column:status;not null" json:"status"`
 	BookImage  string `gorm:"type:varchar(250)" json:"book_image"`
 	CreatedAt  time.Time

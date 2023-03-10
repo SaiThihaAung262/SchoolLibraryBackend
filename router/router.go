@@ -47,13 +47,13 @@ func InitRoute() {
 	apiRoutes := r.Group("/api")
 
 	//User end points
-	userRoutes := apiRoutes.Group("auth")
+	userRoutes := apiRoutes.Group("admin")
 	{
 		userRoutes.POST("/register", authController.Register)
 		userRoutes.POST("/login", authController.Login)
 	}
 
-	userAdminRoutes := apiRoutes.Group("users")
+	userAdminRoutes := apiRoutes.Group("admin-users")
 	// userAdminRoutes.Use(middleware.AuthorizeJWT(jwtService))
 	{
 		userAdminRoutes.POST("/create", userController.CreateUser)
