@@ -14,6 +14,9 @@ import (
 
 type ClientService interface {
 	InsertClient(client dto.ClientRegisterDTO) (*model.Client, error)
+	GetAllClients(req *dto.ClientGetRequest) ([]model.Client, int64, error)
+	UpdateClient(client dto.UpdateClientDTO) (*model.Client, error)
+	DeleteClient(id uint64) error
 }
 type clientService struct {
 	clientRepo repository.ClientRepository
@@ -48,4 +51,34 @@ func (service clientService) InsertClient(client dto.ClientRegisterDTO) (*model.
 		return nil, err
 	}
 	return res, nil
+}
+
+func (service clientService) GetAllClients(req *dto.ClientGetRequest) ([]model.Client, int64, error) {
+
+	clients, count, err := service.clientRepo.GetAllClients(req)
+	if err != nil {
+		return nil, 0, err
+	}
+	return clients, count, err
+}
+
+func (service clientService) UpdateClient(client dto.UpdateClientDTO) (*model.Client, error) {
+	clientToUpdate := model.Client{}
+	err := smapping.FillStruct(&clientToUpdate, smapping.MapFields(client))
+	if err != nil {
+		fmt.Println("------Have error in update bookcategory servcie ------", err.Error())
+	}
+
+	res, errRepo := service.clientRepo.UpdateClient(clientToUpdate)
+	if errRepo != nil {
+		return nil, errRepo
+	}
+
+	return res, nil
+
+}
+
+func (service clientService) DeleteClient(id uint64) error {
+	err := service.clientRepo.DeleteClient(id)
+	return err
 }

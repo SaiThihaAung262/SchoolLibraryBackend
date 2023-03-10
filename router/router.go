@@ -71,6 +71,9 @@ func InitRoute() {
 	clientUserRoutes := apiRoutes.Group("client-users")
 	{
 		clientUserRoutes.POST("/create", clientController.CreateClient)
+		clientUserRoutes.GET("/get-clients", clientController.GetAllClients)
+		clientUserRoutes.POST("/update", clientController.UpdateClient)
+		clientUserRoutes.POST("/delete", clientController.DeleteClient)
 
 	}
 

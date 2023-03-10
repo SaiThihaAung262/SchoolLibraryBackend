@@ -104,7 +104,7 @@ func (c *bookCategoryController) UpdateBookCategory(ctx *gin.Context) {
 		return
 	}
 
-	_, err := c.bookCategoryService.UpdateBookCateogry(updateCategoryDto)
+	res, err := c.bookCategoryService.UpdateBookCateogry(updateCategoryDto)
 	if err != nil {
 		if criteria.IsErrNotFound(err) {
 			response := helper.ResponseErrorData(500, "Cannot find")
@@ -120,7 +120,7 @@ func (c *bookCategoryController) UpdateBookCategory(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
-	response := helper.ResponseData(0, "success", nil)
+	response := helper.ResponseData(0, "success", res)
 	ctx.JSON(http.StatusOK, response)
 }
 
