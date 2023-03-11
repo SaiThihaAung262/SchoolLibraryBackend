@@ -12,7 +12,7 @@ type Teacher struct {
 	Name       string `gorm:"type:varchar(255)" json:"name"`
 	Email      string `gorm:"unique;not null" json:"email"`
 	Password   string `gorm:"type:varchar(255)" json:"password"`
-	Department uint64 `gorm:"column:status;not null" json:"status"`
+	Department uint64 `gorm:"column:department;not null" json:"department"`
 	Token      string `gorm:"-" json:"token,omitempty"`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time

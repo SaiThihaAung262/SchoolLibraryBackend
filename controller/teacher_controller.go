@@ -11,27 +11,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ClientController interface {
-	CreateClient(ctx *gin.Context)
-	GetAllClients(ctx *gin.Context)
-	UpdateClient(ctx *gin.Context)
-	DeleteClient(ctx *gin.Context)
+type TeacherController interface {
+	CreateTeacher(ctx *gin.Context)
+	GetAllTeachers(ctx *gin.Context)
+	UpdateTeacher(ctx *gin.Context)
+	DeleteTeacher(ctx *gin.Context)
 }
 
-type clientController struct {
-	clientService service.ClientService
-	jwtService    service.JwtService
+type teacherController struct {
+	teacherService service.TeacherService
+	jwtService     service.JwtService
 }
 
-func NewClientController(clientService service.ClientService, jwtService service.JwtService) ClientController {
-	return &clientController{
-		clientService: clientService,
-		jwtService:    jwtService,
+func NewTeacherController(teacherService service.TeacherService, jwtService service.JwtService) TeacherController {
+	return &teacherController{
+		teacherService: teacherService,
+		jwtService:     jwtService,
 	}
 }
 
-func (c *clientController) CreateClient(ctx *gin.Context) {
-	var registerDTO dto.ClientRegisterDTO
+func (c *teacherController) CreateTeacher(ctx *gin.Context) {
+	var registerDTO dto.TeacherRegisterDTO
 	errDTO := ctx.ShouldBind(&registerDTO)
 	if errDTO != nil {
 		response := helper.ResponseErrorData(501, errDTO.Error())
@@ -39,7 +39,7 @@ func (c *clientController) CreateClient(ctx *gin.Context) {
 		return
 	}
 
-	createUser, err := c.clientService.InsertClient(registerDTO)
+	createUser, err := c.teacherService.InsertTeacher(registerDTO)
 	if err != nil {
 		if criteria.IsErrNotFound(err) {
 			response := helper.ResponseErrorData(500, "Cannot find")
@@ -47,7 +47,7 @@ func (c *clientController) CreateClient(ctx *gin.Context) {
 			return
 		}
 		if criteria.IsDuplicate(err) {
-			response := helper.ResponseErrorData(528, "Email is Duplicate !")
+			response := helper.ResponseErrorData(528, "Email is already exist !")
 			ctx.JSON(http.StatusOK, response)
 			return
 		}
@@ -60,13 +60,13 @@ func (c *clientController) CreateClient(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-type ResponseClientData struct {
-	List  []model.Client `json:"list"`
-	Total int64          `json:"total"`
+type ResponseTeacherData struct {
+	List  []model.Teacher `json:"list"`
+	Total int64           `json:"total"`
 }
 
-func (c *clientController) GetAllClients(ctx *gin.Context) {
-	req := &dto.ClientGetRequest{}
+func (c *teacherController) GetAllTeachers(ctx *gin.Context) {
+	req := &dto.TeacherGetRequest{}
 
 	if err := ctx.ShouldBind(&req); err != nil {
 		response := helper.ResponseErrorData(500, err.Error())
@@ -74,7 +74,7 @@ func (c *clientController) GetAllClients(ctx *gin.Context) {
 		return
 	}
 
-	result, count, err := c.clientService.GetAllClients(req)
+	result, count, err := c.teacherService.GetAllTeachers(req)
 
 	if err != nil {
 		response := helper.ResponseErrorData(500, err.Error())
@@ -83,12 +83,17 @@ func (c *clientController) GetAllClients(ctx *gin.Context) {
 	}
 
 	if count == 0 {
-		response := helper.ResponseErrorData(500, "Request not found")
+		var teachers []model.Teacher
+		var responseList ResponseTeacherData
+		responseList.List = teachers
+		responseList.Total = count
+
+		response := helper.ResponseData(0, "success", responseList)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
-	var responseList ResponseClientData
+	var responseList ResponseTeacherData
 	responseList.List = result
 	responseList.Total = count
 
@@ -97,8 +102,8 @@ func (c *clientController) GetAllClients(ctx *gin.Context) {
 
 }
 
-func (c *clientController) UpdateClient(ctx *gin.Context) {
-	var updateDto dto.UpdateClientDTO
+func (c *teacherController) UpdateTeacher(ctx *gin.Context) {
+	var updateDto dto.UpdateTeacherDTO
 	errDTO := ctx.ShouldBind(&updateDto)
 	if errDTO != nil {
 		response := helper.ResponseErrorData(500, errDTO.Error())
@@ -106,7 +111,7 @@ func (c *clientController) UpdateClient(ctx *gin.Context) {
 		return
 	}
 
-	res, err := c.clientService.UpdateClient(updateDto)
+	res, err := c.teacherService.UpdateTeacher(updateDto)
 	if err != nil {
 		if criteria.IsErrNotFound(err) {
 			response := helper.ResponseErrorData(500, "Cannot find")
@@ -114,7 +119,7 @@ func (c *clientController) UpdateClient(ctx *gin.Context) {
 			return
 		}
 		if criteria.IsDuplicate(err) {
-			response := helper.ResponseErrorData(528, "This email already exist!")
+			response := helper.ResponseErrorData(528, "Email already exist!")
 			ctx.JSON(http.StatusOK, response)
 			return
 		}
@@ -126,7 +131,7 @@ func (c *clientController) UpdateClient(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-func (c *clientController) DeleteClient(ctx *gin.Context) {
+func (c *teacherController) DeleteTeacher(ctx *gin.Context) {
 	var deleteDto dto.DeleteByIdDTO
 	errDto := ctx.ShouldBind(&deleteDto)
 	if errDto != nil {
@@ -135,7 +140,7 @@ func (c *clientController) DeleteClient(ctx *gin.Context) {
 		return
 	}
 
-	err := c.clientService.DeleteClient(deleteDto.ID)
+	err := c.teacherService.DeleteTeacher(deleteDto.ID)
 	if err != nil {
 		response := helper.ResponseErrorData(500, err.Error())
 		ctx.JSON(http.StatusOK, response)

@@ -11,9 +11,9 @@ import (
 )
 
 type StudentService interface {
-	InsertStudent(client dto.StudentRegisterDTO) (*model.Student, error)
+	InsertStudent(teacher dto.StudentRegisterDTO) (*model.Student, error)
 	GetAllStudents(req *dto.StudentGetRequest) ([]model.Student, int64, error)
-	UpdateStudent(client dto.UpdateStudentDTO) (*model.Student, error)
+	UpdateStudent(teacher dto.UpdateStudentDTO) (*model.Student, error)
 	DeleteStudent(id uint64) error
 }
 type studentService struct {

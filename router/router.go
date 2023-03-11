@@ -22,15 +22,15 @@ var (
 	authController controller.AuthController = controller.NewAuthContrller(userService, jwtService)
 	userController controller.UserController = controller.NewUserController(userService, jwtService)
 
-	//Client User
-	// clientRepository repository.ClientRepository = repository.NewClientRepository(db)
-	// clientService    service.ClientService       = service.NewClientService(clientRepository)
-	// clientController controller.ClientController = controller.NewClientController(clientService, jwtService)
-
 	//Student
 	studentRepository repository.SutudentRepository = repository.NewStudentRepository(db)
 	studentService    service.StudentService        = service.NewStudentService(studentRepository)
 	studentController controller.StudentController  = controller.NewStudentController(studentService, jwtService)
+
+	//Teacher
+	teacherRepository repository.TeacherRepository = repository.NeweTeacherRepository(db)
+	teacherService    service.TeacherService       = service.NewTeacherService(teacherRepository)
+	teacherController controller.TeacherController = controller.NewTeacherController(teacherService, jwtService)
 
 	//BookCategory
 	bookCategoryRepository repository.BookCategoryRepository = repository.NewBookCategoryRepository(db)
@@ -73,15 +73,6 @@ func InitRoute() {
 
 	}
 
-	// clientUserRoutes := apiRoutes.Group("client-users")
-	// {
-	// 	clientUserRoutes.POST("/create", clientController.CreateClient)
-	// 	clientUserRoutes.GET("/get-clients", clientController.GetAllClients)
-	// 	clientUserRoutes.POST("/update", clientController.UpdateClient)
-	// 	clientUserRoutes.POST("/delete", clientController.DeleteClient)
-
-	// }
-
 	//Students end points
 	studentRoutes := apiRoutes.Group("student")
 	{
@@ -89,6 +80,16 @@ func InitRoute() {
 		studentRoutes.GET("/get-students", studentController.GetAllStudents)
 		studentRoutes.POST("/update", studentController.UpdateStudent)
 		studentRoutes.POST("/delete", studentController.DeleteStudent)
+
+	}
+
+	//Students end points
+	teacherRoutes := apiRoutes.Group("teacher")
+	{
+		teacherRoutes.POST("/create", teacherController.CreateTeacher)
+		teacherRoutes.GET("/get-teachers", teacherController.GetAllTeachers)
+		teacherRoutes.POST("/update", teacherController.UpdateTeacher)
+		teacherRoutes.POST("/delete", teacherController.DeleteTeacher)
 
 	}
 
