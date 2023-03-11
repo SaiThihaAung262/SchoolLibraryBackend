@@ -124,7 +124,7 @@ func InitRoute() {
 	borrowRoutes := apiRoutes.Group("borrow")
 	// borrowRoutes.Use(middleware.AuthorizeJWT(jwtService))
 	{
-		borrowRoutes.POST("/create", bookController.CreateBook)
+		borrowRoutes.POST("/create", borrowController.CreateBorrow)
 
 	}
 
