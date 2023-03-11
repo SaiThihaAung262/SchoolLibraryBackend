@@ -32,7 +32,7 @@ func NewBookService(bookRepository repository.BookRepository) BookService {
 func (service bookService) CreateBook(book dto.CreateBookDTO) (*model.Book, error) {
 	bookToCreate := model.Book{}
 
-	err := smapping.FillStruct(&bookToCreate, smapping.MapFields(book))
+	err := smapping.FillStruct(&bookToCreate, smapping.MapFields(&book))
 	if err != nil {
 		fmt.Println("Here have error in Create book service")
 	}
@@ -61,7 +61,7 @@ func (service bookService) GetAllBooks(req *dto.BookGetRequest) ([]model.Book, i
 func (service bookService) UpdateBook(book dto.UpdateBookDTO) (*model.Book, error) {
 	bookToUpdate := model.Book{}
 
-	err := smapping.FillStruct(&bookToUpdate, smapping.MapFields(book))
+	err := smapping.FillStruct(&bookToUpdate, smapping.MapFields(&book))
 	if err != nil {
 		fmt.Println("-------- Here have error in book service update -------")
 	}

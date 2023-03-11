@@ -58,7 +58,7 @@ func (service bookCategoryService) GetAllBookCategory(req *dto.BookCategoryGetRe
 
 func (service bookCategoryService) UpdateBookCateogry(category dto.UpdateBookCategoryDTO) (*model.BookCategory, error) {
 	categoryToUpdate := model.BookCategory{}
-	err := smapping.FillStruct(&categoryToUpdate, smapping.MapFields(category))
+	err := smapping.FillStruct(&categoryToUpdate, smapping.MapFields(&category))
 	if err != nil {
 		fmt.Println("------Have error in update bookcategory servcie ------", err.Error())
 	}

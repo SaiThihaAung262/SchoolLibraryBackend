@@ -51,7 +51,7 @@ func (service teacherService) GetAllTeachers(req *dto.TeacherGetRequest) ([]mode
 
 func (service teacherService) UpdateTeacher(teacher dto.UpdateTeacherDTO) (*model.Teacher, error) {
 	teacherToUpdate := model.Teacher{}
-	err := smapping.FillStruct(&teacherToUpdate, smapping.MapFields(teacher))
+	err := smapping.FillStruct(&teacherToUpdate, smapping.MapFields(&teacher))
 	if err != nil {
 		fmt.Println("------Have error in update bookcategory servcie ------", err.Error())
 	}

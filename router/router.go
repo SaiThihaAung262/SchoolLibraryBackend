@@ -46,6 +46,11 @@ var (
 	mediaRepository repository.MediaRepository = repository.NewMediaRepository(db)
 	mediaService    service.MedeiaService      = service.NewMediaService(mediaRepository)
 	mediaController controller.MediaController = controller.NewMediaController(mediaService)
+
+	//Borrow
+	borrowRepo       repository.BorrowRepository = repository.NewBorrowRepository(db)
+	borrowService    service.Borrowservice       = service.NewBorrowService(borrowRepo)
+	borrowController controller.BorrowController = controller.NewBorrowController(borrowService)
 )
 
 func InitRoute() {
@@ -113,6 +118,14 @@ func InitRoute() {
 		bookRoutes.GET("/get-books", bookController.GetAllBooks)
 		bookRoutes.POST("/update", bookController.UpdateBook)
 		bookRoutes.POST("/delete", bookController.DeleteBook)
+	}
+
+	//Borrow end points
+	borrowRoutes := apiRoutes.Group("borrow")
+	// borrowRoutes.Use(middleware.AuthorizeJWT(jwtService))
+	{
+		borrowRoutes.POST("/create", bookController.CreateBook)
+
 	}
 
 	//Media end points

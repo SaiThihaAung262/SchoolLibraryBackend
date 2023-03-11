@@ -11,9 +11,9 @@ import (
 )
 
 type StudentService interface {
-	InsertStudent(teacher dto.StudentRegisterDTO) (*model.Student, error)
+	InsertStudent(student dto.StudentRegisterDTO) (*model.Student, error)
 	GetAllStudents(req *dto.StudentGetRequest) ([]model.Student, int64, error)
-	UpdateStudent(teacher dto.UpdateStudentDTO) (*model.Student, error)
+	UpdateStudent(student dto.UpdateStudentDTO) (*model.Student, error)
 	DeleteStudent(id uint64) error
 }
 type studentService struct {
@@ -51,7 +51,7 @@ func (service studentService) GetAllStudents(req *dto.StudentGetRequest) ([]mode
 
 func (service studentService) UpdateStudent(student dto.UpdateStudentDTO) (*model.Student, error) {
 	studentToUpdate := model.Student{}
-	err := smapping.FillStruct(&studentToUpdate, smapping.MapFields(student))
+	err := smapping.FillStruct(&studentToUpdate, smapping.MapFields(&student))
 	if err != nil {
 		fmt.Println("------Have error in update bookcategory servcie ------", err.Error())
 	}
