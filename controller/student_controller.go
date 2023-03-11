@@ -47,7 +47,7 @@ func (c *studentController) CreateStudent(ctx *gin.Context) {
 			return
 		}
 		if criteria.IsDuplicate(err) {
-			response := helper.ResponseErrorData(528, "Email is Duplicate !")
+			response := helper.ResponseErrorData(528, "Email or Role number is already exist !")
 			ctx.JSON(http.StatusOK, response)
 			return
 		}
@@ -83,7 +83,12 @@ func (c *studentController) GetAllStudents(ctx *gin.Context) {
 	}
 
 	if count == 0 {
-		response := helper.ResponseErrorData(500, "Request not found")
+		var students []model.Student
+		var responseList ResponseStudentData
+		responseList.List = students
+		responseList.Total = count
+
+		response := helper.ResponseData(0, "success", responseList)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
@@ -114,7 +119,7 @@ func (c *studentController) UpdateStudent(ctx *gin.Context) {
 			return
 		}
 		if criteria.IsDuplicate(err) {
-			response := helper.ResponseErrorData(528, "This email already exist!")
+			response := helper.ResponseErrorData(528, "Email or role number already exist!")
 			ctx.JSON(http.StatusOK, response)
 			return
 		}
