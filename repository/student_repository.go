@@ -61,7 +61,7 @@ func (db *studentConnection) GetAllStudents(req *dto.StudentGetRequest) ([]model
 	}
 
 	if req.RoleNo != "" {
-		filter += fmt.Sprintf(" and role_no = %s", req.RoleNo)
+		filter += fmt.Sprintf(" and role_no LIKE \"%s%s%s\"", "%", req.RoleNo, "%")
 	}
 
 	if req.Year != 0 {
@@ -82,7 +82,7 @@ func (db *studentConnection) GetAllStudents(req *dto.StudentGetRequest) ([]model
 		return nil, 0, err
 	}
 
-	sql := fmt.Sprintf("select * from students %s limit %v offset %v", filter, pageSize, offset)
+	sql := fmt.Sprintf("select * from students %s order by created_at desc limit %v offset %v", filter, pageSize, offset)
 	res := db.connection.Raw(sql).Scan(&students)
 	if res.Error != nil {
 		return nil, 0, res.Error

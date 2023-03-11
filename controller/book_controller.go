@@ -88,7 +88,10 @@ func (c bookController) GetAllBooks(ctx *gin.Context) {
 	}
 
 	if count == 0 {
-		response := helper.ResponseErrorData(500, "No data")
+		var responseData ResponseBookLists
+		responseData.Books = result
+		responseData.Total = count
+		response := helper.ResponseData(0, "success", responseData)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}

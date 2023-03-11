@@ -13,7 +13,7 @@ type Student struct {
 	Email     string `gorm:"unique;not null" json:"email"`
 	Password  string `gorm:"type:varchar(255)" json:"password"`
 	RoleNo    string `gorm:"unique;not null" json:"role_no"`
-	Year      uint64 `gorm:"column:status;not null" json:"status"`
+	Year      uint64 `gorm:"column:year;not null" json:"year"`
 	Token     string `gorm:"-" json:"token,omitempty"`
 	CreatedAt time.Time
 	UpdatedAt time.Time

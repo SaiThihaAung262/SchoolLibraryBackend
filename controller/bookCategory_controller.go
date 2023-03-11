@@ -80,11 +80,11 @@ func (c *bookCategoryController) GetAllBookCategory(ctx *gin.Context) {
 		return
 	}
 
-	if count == 0 {
-		response := helper.ResponseErrorData(500, "Request not found")
-		ctx.JSON(http.StatusOK, response)
-		return
-	}
+	// if count == 0 {
+	// 	response := helper.ResponseErrorData(500, "Request not found")
+	// 	ctx.JSON(http.StatusOK, response)
+	// 	return
+	// }
 
 	var responseList ResponseCategoryListData
 	responseList.List = result

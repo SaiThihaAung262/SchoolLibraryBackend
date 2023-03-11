@@ -61,7 +61,7 @@ func (db *teacherConnection) GetAllTeachers(req *dto.TeacherGetRequest) ([]model
 	}
 
 	if req.Department != 0 {
-		filter += fmt.Sprintf(" and year = %d", req.Department)
+		filter += fmt.Sprintf(" and department = %d", req.Department)
 	}
 
 	if req.Name != "" {
