@@ -74,7 +74,7 @@ func (db *bookCategoryConnection) GetAllBookCategory(req *dto.BookCategoryGetReq
 		filter += fmt.Sprintf(" and title LIKE \"%s%s%s\"", "%", req.Title, "%")
 	}
 
-	sql := fmt.Sprintf("select * from book_categories %s limit %v offset %v", filter, pageSize, offset)
+	sql := fmt.Sprintf("select * from book_categories %s order by created_at desc limit %v offset %v", filter, pageSize, offset)
 	res := db.connection.Raw(sql).Scan(&categories)
 
 	countQuery := fmt.Sprintf("select count(1) from book_categories %s", filter)

@@ -66,12 +66,32 @@ func (db *bookConnection) GetAllBooks(req *dto.BookGetRequest) ([]model.Book, in
 
 	}
 
+	if req.CategorID != 0 {
+		filter += fmt.Sprintf(" and category_id = %d", req.CategorID)
+
+	}
+
+	if req.UUID != "" {
+		filter += fmt.Sprintf(" and uuid = %s", req.UUID)
+
+	}
+
+	if req.Title != "" {
+		filter += fmt.Sprintf(" and title = %s", req.Title)
+
+	}
+
+	if req.Status != 0 {
+		filter += fmt.Sprintf(" and status = %d", req.Status)
+
+	}
+
 	countQuery := fmt.Sprintf("select count(1) from books %s", filter)
 	if err := db.connection.Raw(countQuery).Scan(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	sql := fmt.Sprintf("select * from books %s limit %v offset %v", filter, pageSize, offset)
+	sql := fmt.Sprintf("select * from books %s order by created_at desc limit %v offset %v", filter, pageSize, offset)
 	res := db.connection.Raw(sql).Scan(&books)
 	if res.Error != nil {
 		return nil, 0, res.Error

@@ -11,6 +11,7 @@ type CreateBookDTO struct {
 
 type BookGetRequest struct {
 	ID        uint64 `json:"id" form:"id"`
+	UUID      string `json:"uuid" form:"uuid"`
 	Title     string `json:"title" form:"title"`
 	CategorID uint64 `json:"category_id" form:"category_id"`
 	Status    uint64 `json:"status" form:"status"`

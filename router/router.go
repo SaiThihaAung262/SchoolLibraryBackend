@@ -5,7 +5,6 @@ import (
 
 	"MyGO.com/m/config"
 	"MyGO.com/m/controller"
-	"MyGO.com/m/middleware"
 	"MyGO.com/m/repository"
 	"MyGO.com/m/service"
 	"github.com/gin-gonic/gin"
@@ -65,7 +64,7 @@ func InitRoute() {
 	}
 
 	userAdminRoutes := apiRoutes.Group("admin-users")
-	userAdminRoutes.Use(middleware.AuthorizeJWT(jwtService))
+	// userAdminRoutes.Use(middleware.AuthorizeJWT(jwtService))
 	{
 		userAdminRoutes.POST("/create", userController.CreateUser)
 		userAdminRoutes.GET("/get-users", userController.GetAllUsers)
@@ -76,7 +75,7 @@ func InitRoute() {
 
 	//Students end points
 	studentRoutes := apiRoutes.Group("student")
-	studentRoutes.Use(middleware.AuthorizeJWT(jwtService))
+	// studentRoutes.Use(middleware.AuthorizeJWT(jwtService))
 	{
 		studentRoutes.POST("/create", studentController.CreateStudent)
 		studentRoutes.GET("/get-students", studentController.GetAllStudents)
@@ -87,7 +86,7 @@ func InitRoute() {
 
 	//Students end points
 	teacherRoutes := apiRoutes.Group("teacher")
-	teacherRoutes.Use(middleware.AuthorizeJWT(jwtService))
+	// teacherRoutes.Use(middleware.AuthorizeJWT(jwtService))
 	{
 		teacherRoutes.POST("/create", teacherController.CreateTeacher)
 		teacherRoutes.GET("/get-teachers", teacherController.GetAllTeachers)
@@ -98,7 +97,7 @@ func InitRoute() {
 
 	//Book Category end points
 	bookCategoryRoutes := apiRoutes.Group("book-category")
-	bookCategoryRoutes.Use(middleware.AuthorizeJWT(jwtService))
+	// bookCategoryRoutes.Use(middleware.AuthorizeJWT(jwtService))
 	{
 		bookCategoryRoutes.POST("/create", bookCategoryController.CreateBookCategory)
 		bookCategoryRoutes.GET("/get-categories", bookCategoryController.GetAllBookCategory)
@@ -108,7 +107,7 @@ func InitRoute() {
 
 	//Book end points
 	bookRoutes := apiRoutes.Group("book")
-	bookRoutes.Use(middleware.AuthorizeJWT(jwtService))
+	// bookRoutes.Use(middleware.AuthorizeJWT(jwtService))
 	{
 		bookRoutes.POST("/create", bookController.CreateBook)
 		bookRoutes.GET("/get-books", bookController.GetAllBooks)

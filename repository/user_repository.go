@@ -74,7 +74,7 @@ func (db *userConnection) GetAllUser(req *dto.UserGetRequest) ([]model.User, int
 		filter = fmt.Sprintf("where id = %v", req.ID)
 	}
 
-	sql := fmt.Sprintf("select * from users %s limit %v offset %v", filter, pageSize, offset)
+	sql := fmt.Sprintf("select * from users %s order by created_at desc limit %v offset %v", filter, pageSize, offset)
 	res := db.connection.Raw(sql).Scan(&users)
 
 	countQuery := fmt.Sprintf("select count(1) from users %s", filter)

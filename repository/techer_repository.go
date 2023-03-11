@@ -78,7 +78,7 @@ func (db *teacherConnection) GetAllTeachers(req *dto.TeacherGetRequest) ([]model
 		return nil, 0, err
 	}
 
-	sql := fmt.Sprintf("select * from teachers %s limit %v offset %v", filter, pageSize, offset)
+	sql := fmt.Sprintf("select * from teachers %s order by created_at desc limit %v offset %v", filter, pageSize, offset)
 	res := db.connection.Raw(sql).Scan(&teachers)
 	if res.Error != nil {
 		return nil, 0, res.Error
