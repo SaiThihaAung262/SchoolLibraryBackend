@@ -13,6 +13,7 @@ type SutudentRepository interface {
 	GetAllStudents(req *dto.StudentGetRequest) ([]model.Student, int64, error)
 	UpdateStudent(student model.Student) (*model.Student, error)
 	DeleteStudent(id uint64) error
+	GetStudentByUUID(uuid string) (*model.Student, error)
 }
 
 type studentConnection struct {
@@ -114,4 +115,13 @@ func (db *studentConnection) DeleteStudent(id uint64) error {
 		return err
 	}
 	return nil
+}
+
+func (db *studentConnection) GetStudentByUUID(uuid string) (*model.Student, error) {
+	var student model.Student
+	err := db.connection.Where("uuid = ?", uuid).Take(&student).Error
+	if err != nil {
+		return nil, err
+	}
+	return &student, nil
 }

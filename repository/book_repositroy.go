@@ -14,6 +14,7 @@ type BookRepository interface {
 	GetAllBooks(req *dto.BookGetRequest) ([]model.Book, int64, error)
 	UpdateBook(book model.Book) (*model.Book, error)
 	DeleteBook(id uint64) error
+	GetBookByUUID(uuid string) (*model.Book, error)
 }
 
 type bookConnection struct {
@@ -125,4 +126,14 @@ func (db *bookConnection) DeleteBook(id uint64) error {
 		return err
 	}
 	return nil
+}
+
+func (db *bookConnection) GetBookByUUID(uuid string) (*model.Book, error) {
+	var book model.Book
+	err := db.connection.Model(&model.Book{}).Where("uuid = ?", uuid).Take(&book).Error
+	if err != nil {
+		fmt.Println("here have errror in get book by uuid")
+		return nil, err
+	}
+	return &book, nil
 }

@@ -15,6 +15,7 @@ type TeacherService interface {
 	GetAllTeachers(req *dto.TeacherGetRequest) ([]model.Teacher, int64, error)
 	UpdateTeacher(client dto.UpdateTeacherDTO) (*model.Teacher, error)
 	DeleteTeacher(id uint64) error
+	GetTeacherByUUID(uuid string) (*model.Teacher, error)
 }
 type teacherService struct {
 	teacherRepo repository.TeacherRepository
@@ -68,4 +69,9 @@ func (service teacherService) UpdateTeacher(teacher dto.UpdateTeacherDTO) (*mode
 func (service teacherService) DeleteTeacher(id uint64) error {
 	err := service.teacherRepo.DeleteTeacher(id)
 	return err
+}
+
+func (service teacherService) GetTeacherByUUID(uuid string) (*model.Teacher, error) {
+	teacher, err := service.teacherRepo.GetTeacherByUUID(uuid)
+	return teacher, err
 }

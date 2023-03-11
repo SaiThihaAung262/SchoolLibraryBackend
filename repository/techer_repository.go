@@ -13,6 +13,7 @@ type TeacherRepository interface {
 	GetAllTeachers(req *dto.TeacherGetRequest) ([]model.Teacher, int64, error)
 	UpdateTeacher(teacher model.Teacher) (*model.Teacher, error)
 	DeleteTeacher(id uint64) error
+	GetTeacherByUUID(uuid string) (*model.Teacher, error)
 }
 
 type teacherConnection struct {
@@ -109,4 +110,13 @@ func (db *teacherConnection) DeleteTeacher(id uint64) error {
 		return err
 	}
 	return nil
+}
+
+func (db *teacherConnection) GetTeacherByUUID(uuid string) (*model.Teacher, error) {
+	var teacher model.Teacher
+	 err := db.connection.Where("uuid = ?", uuid).Take(&teacher).Error;
+	 if err != nil {
+		return nil, err
+	}
+	return &teacher, nil
 }
