@@ -113,10 +113,11 @@ func (db *teacherConnection) DeleteTeacher(id uint64) error {
 }
 
 func (db *teacherConnection) GetTeacherByUUID(uuid string) (*model.Teacher, error) {
-	var teacher model.Teacher
-	 err := db.connection.Where("uuid = ?", uuid).Take(&teacher).Error;
-	 if err != nil {
+	teacher := &model.Teacher{}
+	myDb := db.connection.Model(&model.Teacher{})
+	myDb = myDb.Where("uuid = ?", uuid)
+	if err := myDb.First(&teacher).Error; err != nil {
 		return nil, err
 	}
-	return &teacher, nil
+	return teacher, nil
 }

@@ -28,7 +28,10 @@ func NewBorrowController(borrowService service.Borrowservice,
 	studentService service.StudentService,
 ) BorrowController {
 	return &borrowController{
-		borrowService: borrowService,
+		borrowService:  borrowService,
+		bookService:    bookService,
+		teacherService: teacherService,
+		studentService: studentService,
 	}
 }
 
@@ -55,31 +58,31 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 		return
 	}
 
-	// if createDto.Type == 1 {
-	// 	_, errGetTeacher := c.teacherService.GetTeacherByUUID(createDto.UserUUID)
-	// 	if errGetTeacher != nil {
-	// 		if criteria.IsErrNotFound(errGetBook) {
-	// 			response := helper.ResponseErrorData(500, "Cannot find teacher")
-	// 			ctx.JSON(http.StatusOK, response)
-	// 			return
-	// 		}
-	// 		response := helper.ResponseErrorData(500, errGetBook.Error())
-	// 		ctx.JSON(http.StatusOK, response)
-	// 		return
-	// 	}
-	// } else {
-	// 	_, errGetStudent := c.studentService.GetStudentByUUID(createDto.UserUUID)
-	// 	if errGetStudent != nil {
-	// 		if criteria.IsErrNotFound(errGetBook) {
-	// 			response := helper.ResponseErrorData(500, "Cannot find student")
-	// 			ctx.JSON(http.StatusOK, response)
-	// 			return
-	// 		}
-	// 		response := helper.ResponseErrorData(500, errGetBook.Error())
-	// 		ctx.JSON(http.StatusOK, response)
-	// 		return
-	// 	}
-	// }
+	if createDto.Type == 1 {
+		_, errGetTeacher := c.teacherService.GetTeacherByUUID(createDto.UserUUID)
+		if errGetTeacher != nil {
+			if criteria.IsErrNotFound(errGetTeacher) {
+				response := helper.ResponseErrorData(500, "Cannot find teacher")
+				ctx.JSON(http.StatusOK, response)
+				return
+			}
+			response := helper.ResponseErrorData(500, errGetTeacher.Error())
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+	} else {
+		_, errGetStudent := c.studentService.GetStudentByUUID(createDto.UserUUID)
+		if errGetStudent != nil {
+			if criteria.IsErrNotFound(errGetStudent) {
+				response := helper.ResponseErrorData(500, "Cannot find student")
+				ctx.JSON(http.StatusOK, response)
+				return
+			}
+			response := helper.ResponseErrorData(500, errGetStudent.Error())
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+	}
 
 	err := c.borrowService.CreateBorrow(createDto)
 	if err != nil {

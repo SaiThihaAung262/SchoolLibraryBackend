@@ -129,11 +129,12 @@ func (db *bookConnection) DeleteBook(id uint64) error {
 }
 
 func (db *bookConnection) GetBookByUUID(uuid string) (*model.Book, error) {
-	var book model.Book
-	err := db.connection.Model(&model.Book{}).Where("uuid = ?", uuid).Take(&book).Error
-	if err != nil {
-		fmt.Println("here have errror in get book by uuid")
+
+	book := &model.Book{}
+	myDb := db.connection.Model(&model.Book{})
+	myDb = myDb.Where("uuid = ?", uuid)
+	if err := myDb.First(&book).Error; err != nil {
 		return nil, err
 	}
-	return &book, nil
+	return book, nil
 }

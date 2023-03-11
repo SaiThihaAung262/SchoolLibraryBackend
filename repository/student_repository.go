@@ -118,10 +118,11 @@ func (db *studentConnection) DeleteStudent(id uint64) error {
 }
 
 func (db *studentConnection) GetStudentByUUID(uuid string) (*model.Student, error) {
-	var student model.Student
-	err := db.connection.Where("uuid = ?", uuid).Take(&student).Error
-	if err != nil {
+	student := &model.Student{}
+	myDb := db.connection.Model(&model.Student{})
+	myDb = myDb.Where("uuid = ?", uuid)
+	if err := myDb.First(&student).Error; err != nil {
 		return nil, err
 	}
-	return &student, nil
+	return student, nil
 }
