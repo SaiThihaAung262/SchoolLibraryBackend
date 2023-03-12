@@ -11,6 +11,7 @@ import (
 type BorrowRepository interface {
 	CreateBorrow(borrow model.Borrow) error
 	GetBorrowHistory(req *dto.BorrowHistoryRequest) ([]model.Borrow, int64, error)
+	UpdateBorrowStatus(borrow model.Borrow) (*model.Borrow, error)
 }
 
 type borrowConnection struct {
@@ -68,4 +69,17 @@ func (db *borrowConnection) GetBorrowHistory(req *dto.BorrowHistoryRequest) ([]m
 	}
 
 	return nil, 0, nil
+}
+
+func (db *borrowConnection) UpdateBorrowStatus(borrow model.Borrow) (*model.Borrow, error) {
+	err := db.connection.Model(&borrow).Where("id = ?", borrow.ID).Updates(model.Borrow{
+		Status: borrow.Status,
+		Type:   borrow.Type,
+	}).Error
+	if err != nil {
+		fmt.Println("----Here have error in update book repo -----")
+		return nil, err
+
+	}
+	return &borrow, nil
 }

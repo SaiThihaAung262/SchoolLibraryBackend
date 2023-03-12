@@ -12,6 +12,7 @@ import (
 type Borrowservice interface {
 	CreateBorrow(createDto dto.CreateBorrowDTO) error
 	GetBorrowHistory(req *dto.BorrowHistoryRequest) ([]model.Borrow, int64, error)
+	UpdateBorrowStatus(borrow dto.UpdateBorrowStatusDTO) (*model.Borrow, error)
 }
 
 type borrowService struct {
@@ -38,4 +39,20 @@ func (service borrowService) CreateBorrow(createDto dto.CreateBorrowDTO) error {
 func (service borrowService) GetBorrowHistory(req *dto.BorrowHistoryRequest) ([]model.Borrow, int64, error) {
 	res, total, err := service.borrowRepo.GetBorrowHistory(req)
 	return res, total, err
+}
+
+func (service borrowService) UpdateBorrowStatus(borrow dto.UpdateBorrowStatusDTO) (*model.Borrow, error) {
+	toUpdateBorrow := model.Borrow{}
+	err := smapping.FillStruct(&toUpdateBorrow, smapping.MapFields(&borrow))
+	if err != nil {
+		fmt.Println("------Have error in update bookcategory servcie ------", err.Error())
+	}
+
+	res, errRepo := service.borrowRepo.UpdateBorrowStatus(toUpdateBorrow)
+	if errRepo != nil {
+		return nil, errRepo
+	}
+
+	return res, nil
+
 }

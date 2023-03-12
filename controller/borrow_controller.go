@@ -14,6 +14,7 @@ import (
 type BorrowController interface {
 	CreateBorrow(ctx *gin.Context)
 	GetBorrowHistory(ctx *gin.Context)
+	UpdateBorrowStatus(ctx *gin.Context)
 }
 
 type borrowController struct {
@@ -176,6 +177,7 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 
 		responseData.ID = item.ID
 		responseData.Type = item.Type
+		responseData.Status = item.Status
 		responseData.User = borrowUser
 		responseData.Book = book
 		responseData.CreatedAt = item.CreatedAt
@@ -187,6 +189,33 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 	}
 
 	response := helper.ResponseData(0, "success", responseList)
+	ctx.JSON(http.StatusOK, response)
+
+}
+
+func (c borrowController) UpdateBorrowStatus(ctx *gin.Context) {
+	var updateDto dto.UpdateBorrowStatusDTO
+	errDTO := ctx.ShouldBind(&updateDto)
+	if errDTO != nil {
+		response := helper.ResponseErrorData(500, errDTO.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	res, err := c.borrowService.UpdateBorrowStatus(updateDto)
+	if err != nil {
+		if criteria.IsErrNotFound(err) {
+			response := helper.ResponseErrorData(500, "Cannot find")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+		response := helper.ResponseErrorData(500, err.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+	fmt.Println(res)
+
+	response := helper.ResponseData(0, "success", helper.EmptyObj{})
 	ctx.JSON(http.StatusOK, response)
 
 }

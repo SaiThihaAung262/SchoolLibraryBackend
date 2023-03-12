@@ -12,6 +12,12 @@ type CreateBorrowDTO struct {
 	Type     uint64 `json:"type" form:"type" binding:"required"`
 }
 
+type UpdateBorrowStatusDTO struct {
+	ID     uint64 `json:"id" form:"id" binding:"required"`
+	Type   uint64 `json:"type" form:"type" binding:"required"`
+	Status uint64 `json:"status" form:"status" binding:"required"`
+}
+
 type BorrowUser struct {
 	ID         uint64 `json:"id"`
 	UUID       string `json:"uuid"`
@@ -25,6 +31,7 @@ type BorrowUser struct {
 type BorrowHistoryResponse struct {
 	ID        uint64      `json:"id"`
 	Type      uint64      `json:"type"`
+	Status    uint64      `json:"status"`
 	User      BorrowUser  `json:"user_data"`
 	Book      *model.Book `json:"book_data"`
 	CreatedAt time.Time   `json:"created_at"`
