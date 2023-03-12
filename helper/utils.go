@@ -5,6 +5,7 @@ import (
 	"log"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 func GenerateUUID() string {
@@ -16,4 +17,8 @@ func GenerateUUID() string {
 	fmt.Println("Generated UUID:")
 	fmt.Printf("%s", splitID[0])
 	return splitID[0]
+}
+
+func AddSevenDay(myTime time.Time) time.Time {
+	return myTime.AddDate(0, 0, 7)
 }

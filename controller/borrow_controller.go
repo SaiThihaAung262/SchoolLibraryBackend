@@ -180,7 +180,7 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 		responseData.Book = book
 		responseData.CreatedAt = item.CreatedAt
 		responseData.UpdatedAt = item.UpdatedAt
-		responseData.ExpiredAt = item.UpdatedAt
+		responseData.ExpiredAt = helper.AddSevenDay(item.CreatedAt)
 
 		responseList.List = append(responseList.List, responseData)
 
