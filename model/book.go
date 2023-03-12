@@ -7,15 +7,17 @@ import (
 )
 
 type Book struct {
-	ID         uint64 `gorm:"primary_key:auto_increment" json:"id"`
-	UUID       string `gorm:"unique;not null" json:"uuid"`
-	CategoryID uint64 `gorm:"column:category_id;not null" json:"category_id"`
-	Title      string `gorm:"unique;not null" json:"title"`
-	Author     string `gorm:"type:varchar(250)" json:"author"`
-	Summary    string `gorm:"type:varchar(250)" json:"summary"`
-	Status     uint64 `gorm:"column:status;not null" json:"status"`
-	BookImage  string `gorm:"type:varchar(250)" json:"book_image"`
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	DeletedAt  gorm.DeletedAt `json:"-"`
+	ID           uint64 `gorm:"primary_key:auto_increment" json:"id"`
+	UUID         string `gorm:"unique;not null" json:"uuid"`
+	CategoryID   uint64 `gorm:"column:category_id;not null" json:"category_id"`
+	Title        string `gorm:"unique;not null" json:"title"`
+	Author       string `gorm:"type:varchar(250)" json:"author"`
+	Summary      string `gorm:"type:varchar(250)" json:"summary"`
+	Status       uint64 `gorm:"column:status;not null" json:"status"`
+	BookImage    string `gorm:"type:varchar(250)" json:"book_image"`
+	AvailableQty uint64 `gorm:"column:available_qty;not null" json:"available_qty"`
+	BorrowQty    uint64 `gorm:"column:borrow_qty;not null" json:"borrow_qty"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	DeletedAt    gorm.DeletedAt `json:"-"`
 }

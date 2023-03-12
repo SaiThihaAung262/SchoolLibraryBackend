@@ -47,10 +47,14 @@ var (
 	mediaService    service.MedeiaService      = service.NewMediaService(mediaRepository)
 	mediaController controller.MediaController = controller.NewMediaController(mediaService)
 
+	//Borrow Log
+	borrowLogRepo    repository.BorrowLogRepository = repository.NewBorrowlogRepository(db)
+	borrowLogService service.BorrowLogService       = service.NewBorrowLogService(borrowLogRepo)
+
 	//Borrow
 	borrowRepo       repository.BorrowRepository = repository.NewBorrowRepository(db)
 	borrowService    service.Borrowservice       = service.NewBorrowService(borrowRepo)
-	borrowController controller.BorrowController = controller.NewBorrowController(borrowService, bookService, teacherService, studentService)
+	borrowController controller.BorrowController = controller.NewBorrowController(borrowService, bookService, teacherService, studentService, borrowLogService)
 )
 
 func InitRoute() {

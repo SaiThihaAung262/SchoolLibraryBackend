@@ -1,12 +1,13 @@
 package dto
 
 type CreateBookDTO struct {
-	Title      string `json:"title" form:"title" binding:"required"`
-	CategoryID uint64 `json:"category_id" form:"category_id" binding:"required"`
-	Status     uint64 `json:"status" form:"status" binding:"required"`
-	Author     string `json:"author" form:"author" binding:"required"`
-	Summary    string `json:"summary" from:"summary" binding:"required"`
-	BookImage  string `json:"book_image" form:"book_image"`
+	Title        string `json:"title" form:"title" binding:"required"`
+	CategoryID   uint64 `json:"category_id" form:"category_id" binding:"required"`
+	Status       uint64 `json:"status" form:"status" binding:"required"`
+	Author       string `json:"author" form:"author" binding:"required"`
+	Summary      string `json:"summary" from:"summary" binding:"required"`
+	BookImage    string `json:"book_image" form:"book_image"`
+	AvailableQty uint64 `json:"available_qty" form:"available_qty" binding:"required"`
 }
 
 type BookGetRequest struct {
@@ -20,11 +21,13 @@ type BookGetRequest struct {
 }
 
 type UpdateBookDTO struct {
-	ID         uint64 `json:"id" form:"id" binding:"required"`
-	Title      string `json:"title" form:"title" binding:"required"`
-	CategoryID uint64 `json:"category_id" form:"category_id" binding:"required"`
-	Status     uint64 `json:"status" form:"status" binding:"required"`
-	Author     string `json:"author" form:"author" binding:"required"`
-	Summary    string `json:"summary" from:"summary" binding:"required"`
-	BookImage  string `json:"book_image" form:"book_image"`
+	ID           uint64 `json:"id" form:"id" binding:"required"`
+	Title        string `json:"title" form:"title"`
+	CategoryID   uint64 `json:"category_id" form:"category_id"`
+	Status       uint64 `json:"status" form:"status"`
+	Author       string `json:"author" form:"author"`
+	Summary      string `json:"summary" from:"summary"`
+	BookImage    string `json:"book_image" form:"book_image"`
+	AvailableQty uint64 `json:"available_qty" form:"available_qty"`
+	BorrowQty    uint64 `json:"borrow_qty" form:"borrow_qty"`
 }

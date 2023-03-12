@@ -38,13 +38,6 @@ func (c bookController) CreateBook(ctx *gin.Context) {
 		return
 	}
 
-	// isDuplicateTitle := c.bookService.IsBookTitleDuplicate(bookToCreate.Title)
-	// if isDuplicateTitle {
-	// 	response := helper.ResponseErrorData(500, "The title with this book is already exit !")
-	// 	ctx.JSON(http.StatusOK, response)
-	// 	return
-	// }
-
 	createdBook, err := c.bookService.CreateBook(bookToCreate)
 	if err != nil {
 		if criteria.IsErrNotFound(err) {

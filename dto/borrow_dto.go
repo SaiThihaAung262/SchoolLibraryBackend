@@ -13,9 +13,11 @@ type CreateBorrowDTO struct {
 }
 
 type UpdateBorrowStatusDTO struct {
-	ID     uint64 `json:"id" form:"id" binding:"required"`
-	Type   uint64 `json:"type" form:"type" binding:"required"`
-	Status uint64 `json:"status" form:"status" binding:"required"`
+	ID       uint64 `json:"id" form:"id" binding:"required"`
+	UserUUID string `json:"user_uuid" form:"user_uuid" binding:"required"`
+	BookUUID string `json:"book_uuid" form:"book_uuid" binding:"required"`
+	Type     uint64 `json:"type" form:"type" binding:"required"`
+	Status   uint64 `json:"status" form:"status" binding:"required"`
 }
 
 type BorrowUser struct {

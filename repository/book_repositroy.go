@@ -102,13 +102,29 @@ func (db *bookConnection) GetAllBooks(req *dto.BookGetRequest) ([]model.Book, in
 }
 
 func (db *bookConnection) UpdateBook(book model.Book) (*model.Book, error) {
+	var status uint64
+
+	if book.Status == 2 {
+		fmt.Println("here is status 222222222222")
+		status = book.Status
+	} else {
+		if book.BorrowQty >= book.AvailableQty {
+			status = 3
+		} else {
+			status = 1
+		}
+	}
+
 	err := db.connection.Model(&book).Where("id = ?", book.ID).Updates(model.Book{
 		Title:      book.Title,
 		CategoryID: book.CategoryID,
 		Author:     book.Author,
 		Summary:    book.Summary,
-		Status:     book.Status,
-		BookImage:  book.BookImage,
+		// Status:       book.Status,
+		Status:       status,
+		BookImage:    book.BookImage,
+		AvailableQty: book.AvailableQty,
+		BorrowQty:    book.BorrowQty,
 	}).Error
 	if err != nil {
 		fmt.Println("----Here have error in update book repo -----")
