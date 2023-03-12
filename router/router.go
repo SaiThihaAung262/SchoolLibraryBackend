@@ -125,6 +125,7 @@ func InitRoute() {
 	// borrowRoutes.Use(middleware.AuthorizeJWT(jwtService))
 	{
 		borrowRoutes.POST("/create", borrowController.CreateBorrow)
+		borrowRoutes.GET("/get-history", borrowController.GetBorrowHistory)
 
 	}
 

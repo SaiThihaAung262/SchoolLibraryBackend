@@ -11,6 +11,7 @@ import (
 
 type Borrowservice interface {
 	CreateBorrow(createDto dto.CreateBorrowDTO) error
+	GetBorrowHistory(req *dto.BorrowHistoryRequest) ([]model.Borrow, int64, error)
 }
 
 type borrowService struct {
@@ -32,4 +33,9 @@ func (service borrowService) CreateBorrow(createDto dto.CreateBorrowDTO) error {
 	}
 	borrow.Status = 1
 	return service.borrowRepo.CreateBorrow(borrow)
+}
+
+func (service borrowService) GetBorrowHistory(req *dto.BorrowHistoryRequest) ([]model.Borrow, int64, error) {
+	res, total, err := service.borrowRepo.GetBorrowHistory(req)
+	return res, total, err
 }

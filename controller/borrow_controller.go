@@ -13,6 +13,7 @@ import (
 
 type BorrowController interface {
 	CreateBorrow(ctx *gin.Context)
+	GetBorrowHistory(ctx *gin.Context)
 }
 
 type borrowController struct {
@@ -92,6 +93,100 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 	}
 
 	response := helper.ResponseData(0, "success", helper.EmptyObj{})
+	ctx.JSON(http.StatusOK, response)
+
+}
+
+func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
+	reqDto := &dto.BorrowHistoryRequest{}
+	errDto := ctx.ShouldBind(&reqDto)
+	if errDto != nil {
+		response := helper.ResponseErrorData(500, errDto.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	resultData, total, err := c.borrowService.GetBorrowHistory(reqDto)
+	if err != nil {
+		response := helper.ResponseErrorData(500, errDto.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	fmt.Println("----- here is total count ----", total)
+
+	var responseList dto.BorrowHistoryList
+	responseList.Total = total
+
+	for _, item := range resultData {
+		responseData := dto.BorrowHistoryResponse{}
+
+		book, errGetBook := c.bookService.GetBookByUUID(item.BookUUID)
+		if errGetBook != nil {
+			if criteria.IsErrNotFound(errGetBook) {
+				response := helper.ResponseErrorData(500, "Cannot find book")
+				ctx.JSON(http.StatusOK, response)
+				return
+			}
+			response := helper.ResponseErrorData(500, errGetBook.Error())
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+
+		var borrowUser dto.BorrowUser
+		if item.Type == 1 {
+			teacher, errGetTeacher := c.teacherService.GetTeacherByUUID(item.UserUUID)
+			if errGetTeacher != nil {
+				if criteria.IsErrNotFound(errGetTeacher) {
+					response := helper.ResponseErrorData(500, "Cannot find teacher")
+					ctx.JSON(http.StatusOK, response)
+					return
+				}
+				response := helper.ResponseErrorData(500, errGetTeacher.Error())
+				ctx.JSON(http.StatusOK, response)
+				return
+			}
+			borrowUser.ID = teacher.ID
+			borrowUser.UUID = teacher.UUID
+			borrowUser.Name = teacher.Name
+			borrowUser.Email = teacher.Email
+			borrowUser.Department = teacher.Department
+			borrowUser.Year = 0
+			borrowUser.RoleNo = ""
+		} else {
+			student, errGetStudent := c.studentService.GetStudentByUUID(item.UserUUID)
+			if errGetStudent != nil {
+				if criteria.IsErrNotFound(errGetStudent) {
+					response := helper.ResponseErrorData(500, "Cannot find student")
+					ctx.JSON(http.StatusOK, response)
+					return
+				}
+				response := helper.ResponseErrorData(500, errGetStudent.Error())
+				ctx.JSON(http.StatusOK, response)
+				return
+			}
+			borrowUser.ID = student.ID
+			borrowUser.UUID = student.UUID
+			borrowUser.Name = student.Name
+			borrowUser.Email = student.Email
+			borrowUser.Year = student.Year
+			borrowUser.RoleNo = student.RoleNo
+			borrowUser.Department = 0
+		}
+
+		responseData.ID = item.ID
+		responseData.Type = item.Type
+		responseData.User = borrowUser
+		responseData.Book = book
+		responseData.CreatedAt = item.CreatedAt
+		responseData.UpdatedAt = item.UpdatedAt
+		responseData.ExpiredAt = item.UpdatedAt
+
+		responseList.List = append(responseList.List, responseData)
+
+	}
+
+	response := helper.ResponseData(0, "success", responseList)
 	ctx.JSON(http.StatusOK, response)
 
 }
