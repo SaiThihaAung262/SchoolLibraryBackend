@@ -68,7 +68,7 @@ func InitRoute() {
 	//User end points
 	userRoutes := apiRoutes.Group("admin")
 	{
-		userRoutes.POST("/register", authController.Register)
+		// userRoutes.POST("/register", authController.Register)
 		userRoutes.POST("/login", authController.Login)
 	}
 
@@ -79,6 +79,7 @@ func InitRoute() {
 		userAdminRoutes.GET("/get-users", userController.GetAllUsers)
 		userAdminRoutes.POST("/update", userController.UpdateUser)
 		userAdminRoutes.POST("/delete", userController.DeleteUser)
+		userAdminRoutes.GET("/dashboard", userController.GetDashbordData)
 
 	}
 

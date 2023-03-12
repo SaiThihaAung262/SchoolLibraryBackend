@@ -18,6 +18,7 @@ type UserService interface {
 	UpdateUser(user dto.UpdateUserDto) (*model.User, error)
 	IsUserExist(id uint64) bool
 	DeleteUser(id uint64) error
+	GetUserDashBoard() (*dto.DashboardResponse, error)
 }
 
 type userService struct {
@@ -104,4 +105,8 @@ func (service userService) IsUserExist(id uint64) bool {
 func (service userService) DeleteUser(id uint64) error {
 	res := service.userRepo.DeleteUser(id)
 	return res
+}
+
+func (service userService) GetUserDashBoard() (*dto.DashboardResponse, error) {
+	return service.userRepo.GetUserDashBoard()
 }

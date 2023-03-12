@@ -17,6 +17,7 @@ type UserController interface {
 	GetAllUsers(ctx *gin.Context)
 	UpdateUser(ctx *gin.Context)
 	DeleteUser(ctx *gin.Context)
+	GetDashbordData(ctx *gin.Context)
 }
 
 type userController struct {
@@ -160,5 +161,16 @@ func (c *userController) DeleteUser(ctx *gin.Context) {
 		return
 	}
 	response := helper.ResponseData(0, "success", helper.EmptyObj{})
+	ctx.JSON(http.StatusOK, response)
+}
+
+func (c *userController) GetDashbordData(ctx *gin.Context) {
+	res, err := c.userService.GetUserDashBoard()
+	if err != nil {
+		response := helper.ResponseErrorData(500, err.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+	response := helper.ResponseData(0, "success", res)
 	ctx.JSON(http.StatusOK, response)
 }

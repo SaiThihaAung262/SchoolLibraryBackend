@@ -17,6 +17,7 @@ type UserRepository interface {
 	UpdateUser(user model.User) (*model.User, error)
 	IsUserExist(id uint64) (tx *gorm.DB)
 	DeleteUser(id uint64) error
+	GetUserDashBoard() (*dto.DashboardResponse, error)
 }
 
 type userConnection struct {
@@ -125,4 +126,66 @@ func (db *userConnection) IsDuplicateEmail(email string) (tx *gorm.DB) {
 func (db *userConnection) IsDuplicateName(name string) (tx *gorm.DB) {
 	var user model.User
 	return db.connection.Where("name = ?", name).Take(&user)
+}
+
+func (db *userConnection) GetUserDashBoard() (*dto.DashboardResponse, error) {
+	dashboardData := &dto.DashboardResponse{}
+
+	var adminCount int64
+	adminCountSQL := "select count(1) from users"
+	if err := db.connection.Raw(adminCountSQL).Scan(&adminCount).Error; err != nil {
+		return nil, err
+	}
+
+	var teacherCount int64
+	teacherCountSQL := "select count(1) from teachers where deleted_at IS NULL"
+	if err := db.connection.Raw(teacherCountSQL).Scan(&teacherCount).Error; err != nil {
+		return nil, err
+	}
+
+	var studentCount int64
+	studentCountSQL := "select count(1) from students where deleted_at IS NULL"
+	if err := db.connection.Raw(studentCountSQL).Scan(&studentCount).Error; err != nil {
+		return nil, err
+	}
+
+	var bookCount int64
+	bookCountSQL := "select count(1) from books where deleted_at IS NULL"
+	if err := db.connection.Raw(bookCountSQL).Scan(&bookCount).Error; err != nil {
+		return nil, err
+	}
+
+	var categoryCount int64
+	categoryCountSQL := "select count(1) from book_categories where deleted_at IS NULL"
+	if err := db.connection.Raw(categoryCountSQL).Scan(&categoryCount).Error; err != nil {
+		return nil, err
+	}
+
+	var totalBorrowCount int64
+	totalBorrowCountSQL := "select count(1) from borrows where deleted_at IS NULL"
+	if err := db.connection.Raw(totalBorrowCountSQL).Scan(&totalBorrowCount).Error; err != nil {
+		return nil, err
+	}
+
+	var underBorrowing int64
+	underBorrowingCountSQL := "select count(1) from borrows where status = 1 and deleted_at IS NULL"
+	if err := db.connection.Raw(underBorrowingCountSQL).Scan(&underBorrowing).Error; err != nil {
+		return nil, err
+	}
+
+	var haveReturned int64
+	haveReturnedCountSQL := "select count(1) from borrows where status = 2 and deleted_at IS NULL"
+	if err := db.connection.Raw(haveReturnedCountSQL).Scan(&haveReturned).Error; err != nil {
+		return nil, err
+	}
+
+	dashboardData.TotalAdmin = adminCount
+	dashboardData.TotalTeacher = teacherCount
+	dashboardData.TotalStudent = studentCount
+	dashboardData.TotalBook = bookCount
+	dashboardData.TotalCategory = categoryCount
+	dashboardData.TotalBorrow = totalBorrowCount
+	dashboardData.UnderBorrow = underBorrowing
+	dashboardData.HaveReturned = haveReturned
+	return dashboardData, nil
 }
