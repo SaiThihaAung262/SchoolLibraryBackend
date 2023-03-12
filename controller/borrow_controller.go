@@ -123,14 +123,11 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 		borrowLog.UserUUID = userTeacher.UUID
 		borrowLog.UserName = userTeacher.Name
 		borrowLog.Department = userTeacher.Department
-		// borrowLog.RoleNo = ""
-		// borrowLog.Year = 0
 
 	} else {
 		borrowLog.UserID = userStudent.ID
 		borrowLog.UserUUID = userStudent.UUID
 		borrowLog.UserName = userStudent.Name
-		// borrowLog.Department = 0
 		borrowLog.RoleNo = userStudent.RoleNo
 		borrowLog.Year = userStudent.Year
 	}
@@ -207,13 +204,6 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 				ctx.JSON(http.StatusOK, response)
 				return
 			}
-			// borrowUser.ID = teacher.ID
-			// borrowUser.UUID = teacher.UUID
-			// borrowUser.Name = teacher.Name
-			// borrowUser.Email = teacher.Email
-			// borrowUser.Department = teacher.Department
-			// borrowUser.Year = 0
-			// borrowUser.RoleNo = ""
 
 			err := smapping.FillStruct(&borrowUser, smapping.MapFields(&teacher))
 			if err != nil {
@@ -233,13 +223,6 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 				ctx.JSON(http.StatusOK, response)
 				return
 			}
-			// borrowUser.ID = student.ID
-			// borrowUser.UUID = student.UUID
-			// borrowUser.Name = student.Name
-			// borrowUser.Email = student.Email
-			// borrowUser.Year = student.Year
-			// borrowUser.RoleNo = student.RoleNo
-			// borrowUser.Department = 0
 
 			err := smapping.FillStruct(&borrowUser, smapping.MapFields(&student))
 			if err != nil {
