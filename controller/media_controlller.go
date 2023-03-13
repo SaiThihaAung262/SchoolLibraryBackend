@@ -38,6 +38,7 @@ func (c mediaController) CreateMedia(ctx *gin.Context) {
 	// dst := pwd
 
 	dst := "/Users/thihaaung/Documents/SchoolLibraryProject"
+	dstClient := "/Users/thihaaung/Documents/SchoolLibraryProject"
 
 	file, err := ctx.FormFile("file")
 	if err != nil {
@@ -57,10 +58,13 @@ func (c mediaController) CreateMedia(ctx *gin.Context) {
 	mediaType := types[0]
 	extension := filepath.Ext(file.Filename)
 	if mediaType == "image" {
-		dst += "/images"
+		dst += "/AdminSide/public/images"
+		dstClient += "/ClinetSide/public/images"
 	}
 	filename := CreateFileName(extension)
 	fileLocation := fmt.Sprintf("%v/%v", dst, filename)
+	fileLocationClient := fmt.Sprintf("%v/%v", dstClient, filename)
+
 	err = ctx.SaveUploadedFile(file, fileLocation)
 	if err != nil {
 		defer os.Remove(fileLocation)
@@ -70,7 +74,17 @@ func (c mediaController) CreateMedia(ctx *gin.Context) {
 		ctx.JSON(500, respone)
 		return
 	}
-	url := fmt.Sprintf("/Users/thihaaung/Documents/SchoolLibraryProject/images/%v", filename)
+	errClientFile := ctx.SaveUploadedFile(file, fileLocationClient)
+	if errClientFile != nil {
+		defer os.Remove(fileLocationClient)
+
+		fmt.Println("Error Saving file>>>>>>>>>>", errClientFile)
+		respone := helper.ResponseErrorData(500, "ERROR_SAVING_FILE")
+		ctx.JSON(500, respone)
+		return
+	}
+
+	url := fmt.Sprintf("/images/%v", filename)
 
 	media := model.Media{
 		FileName:  filename,
