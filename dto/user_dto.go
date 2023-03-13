@@ -40,3 +40,20 @@ type DashboardResponse struct {
 	UnderBorrow   int64 `json:"under_borrow" form:"under_borrow"`
 	HaveReturned  int64 `json:"have_returned" form:"have_returned"`
 }
+
+type ReqMostBorrowData struct {
+	Page     uint64 `json:"page" form:"page"`
+	PageSize uint64 `json:"page_size" form:"page_size"`
+}
+
+type MostBorrowBookData struct {
+	BookID      uint64 `json:"book_id" form:"book_id"`
+	BookUUID    string `json:"book_uuid" form:"book_uuid"`
+	BookTitle   string `json:"book_title" form:"book_title"`
+	BorrowCount uint64 `json:"borrow_count" form:"borrow_count"`
+}
+
+type MostBorrowLogRespList struct {
+	List  []MostBorrowBookData `json:"list" form:"list"`
+	Total uint64               `json:"total" form:"total"`
+}

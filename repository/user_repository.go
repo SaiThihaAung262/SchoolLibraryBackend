@@ -18,6 +18,7 @@ type UserRepository interface {
 	IsUserExist(id uint64) (tx *gorm.DB)
 	DeleteUser(id uint64) error
 	GetUserDashBoard() (*dto.DashboardResponse, error)
+	GetMostBorrowLog(req *dto.ReqMostBorrowData) ([]dto.MostBorrowBookData, uint64, error)
 }
 
 type userConnection struct {
@@ -188,4 +189,39 @@ func (db *userConnection) GetUserDashBoard() (*dto.DashboardResponse, error) {
 	dashboardData.UnderBorrow = underBorrowing
 	dashboardData.HaveReturned = haveReturned
 	return dashboardData, nil
+}
+
+func (db *userConnection) GetMostBorrowLog(req *dto.ReqMostBorrowData) ([]dto.MostBorrowBookData, uint64, error) {
+	var mostBorrowBooks []dto.MostBorrowBookData
+	var total uint64
+
+	var offset uint64
+	var pageSize uint64
+
+	if req.Page != 0 {
+		offset = (req.Page - 1) * req.PageSize
+	} else {
+		offset = 0
+	}
+
+	if req.PageSize != 0 {
+		pageSize = req.PageSize
+	} else {
+		pageSize = 10
+
+	}
+
+	// filter := " where type = 2"
+	sql := fmt.Sprintf("SELECT book_id, book_uuid, book_title, COUNT(1) AS 'borrow_count' FROM borrow_logs WHERE type = 2 GROUP BY book_title ORDER BY borrow_count DESC limit %v offset %v", pageSize, offset)
+	res := db.connection.Raw(sql).Scan(&mostBorrowBooks)
+	if res.Error != nil {
+		return nil, 0, res.Error
+	}
+
+	countQuery := "SELECT COUNT(*) as 'total_count' FROM (SELECT COUNT(1) AS 'borrow_count' FROM borrow_logs WHERE type = 2 GROUP BY book_title) as t1"
+	if err := db.connection.Raw(countQuery).Scan(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return mostBorrowBooks, total, nil
 }

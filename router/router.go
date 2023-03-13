@@ -80,6 +80,7 @@ func InitRoute() {
 		userAdminRoutes.POST("/update", userController.UpdateUser)
 		userAdminRoutes.POST("/delete", userController.DeleteUser)
 		userAdminRoutes.GET("/dashboard", userController.GetDashbordData)
+		userAdminRoutes.GET("/popular-books", userController.GetMostBorrowLog)
 
 	}
 

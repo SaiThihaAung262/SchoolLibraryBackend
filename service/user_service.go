@@ -19,6 +19,7 @@ type UserService interface {
 	IsUserExist(id uint64) bool
 	DeleteUser(id uint64) error
 	GetUserDashBoard() (*dto.DashboardResponse, error)
+	GetMostBorrowLog(req *dto.ReqMostBorrowData) ([]dto.MostBorrowBookData, uint64, error)
 }
 
 type userService struct {
@@ -109,4 +110,8 @@ func (service userService) DeleteUser(id uint64) error {
 
 func (service userService) GetUserDashBoard() (*dto.DashboardResponse, error) {
 	return service.userRepo.GetUserDashBoard()
+}
+
+func (service userService) GetMostBorrowLog(req *dto.ReqMostBorrowData) ([]dto.MostBorrowBookData, uint64, error) {
+	return service.userRepo.GetMostBorrowLog(req)
 }

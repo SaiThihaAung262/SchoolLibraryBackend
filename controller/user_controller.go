@@ -18,6 +18,7 @@ type UserController interface {
 	UpdateUser(ctx *gin.Context)
 	DeleteUser(ctx *gin.Context)
 	GetDashbordData(ctx *gin.Context)
+	GetMostBorrowLog(ctx *gin.Context)
 }
 
 type userController struct {
@@ -173,4 +174,31 @@ func (c *userController) GetDashbordData(ctx *gin.Context) {
 	}
 	response := helper.ResponseData(0, "success", res)
 	ctx.JSON(http.StatusOK, response)
+}
+
+func (c *userController) GetMostBorrowLog(ctx *gin.Context) {
+	req := &dto.ReqMostBorrowData{}
+	errDto := ctx.ShouldBind(&req)
+	if errDto != nil {
+		response := helper.ResponseErrorData(500, errDto.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	result, total, err := c.userService.GetMostBorrowLog(req)
+
+	if err != nil {
+		response := helper.ResponseErrorData(500, err.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	responseData := dto.MostBorrowLogRespList{
+		List:  result,
+		Total: total,
+	}
+
+	response := helper.ResponseData(0, "success", responseData)
+	ctx.JSON(http.StatusOK, response)
+
 }
