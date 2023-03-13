@@ -79,5 +79,4 @@ func (c *authController) Login(ctx *gin.Context) {
 
 	response := helper.ResponseErrorData(504, "Invalid uesr name or password")
 	ctx.JSON(http.StatusOK, response)
-
 }

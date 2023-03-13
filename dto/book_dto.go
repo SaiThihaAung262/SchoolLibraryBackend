@@ -31,3 +31,7 @@ type UpdateBookDTO struct {
 	AvailableQty uint64 `json:"available_qty" form:"available_qty"`
 	BorrowQty    uint64 `json:"borrow_qty" form:"borrow_qty"`
 }
+
+type GetBookByUUIDDto struct {
+	UUID string `json:"uuid" form:"uuid" binding:"required"`
+}

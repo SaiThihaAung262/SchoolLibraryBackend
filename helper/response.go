@@ -11,6 +11,11 @@ type ResponseErr struct {
 	ErrorMessage string `json:"err_msg"`
 }
 
+type ResponseUserData struct {
+	Type     uint64      `json:"type" form:"type"`
+	UserData interface{} `json:"user_data" form:"user_data"`
+}
+
 type EmptyObj struct{}
 
 func ResponseData(err_code uint64, err string, data interface{}) Response {

@@ -5,6 +5,7 @@ import (
 
 	"MyGO.com/m/config"
 	"MyGO.com/m/controller"
+	"MyGO.com/m/middleware"
 	"MyGO.com/m/repository"
 	"MyGO.com/m/service"
 	"github.com/gin-gonic/gin"
@@ -140,10 +141,21 @@ func InitRoute() {
 
 	}
 
-	//Client Login Route
+	//Client Login end points
 	clientAuthRoutes := apiRoutes.Group("client")
 	{
 		clientAuthRoutes.POST("/login", clientAuthController.ClientLogin)
+
+	}
+
+	//Client user end points
+	clientUserRoutes := apiRoutes.Group("user")
+	clientUserRoutes.Use(middleware.AuthorizeJWT(jwtService))
+	{
+		clientUserRoutes.GET("/get-books", bookController.GetAllBooks)
+		clientUserRoutes.GET("/get-book-detail", bookController.GetBookByUUID)
+		clientUserRoutes.GET("/get-categories", bookCategoryController.GetAllBookCategory)
+		clientUserRoutes.GET("/get-user", clientAuthController.GetClientByUUID)
 
 	}
 

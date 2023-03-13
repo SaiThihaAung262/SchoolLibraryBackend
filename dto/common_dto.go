@@ -15,3 +15,8 @@ type ClientLoginDTO struct {
 	Name     string `json:"name" form:"name" binding:"required"`
 	Password string `json:"password" form:"password" binding:"required"`
 }
+
+type GetUserByUUIDDto struct {
+	Type uint64 `json:"type" form:"type" binding:"required"`
+	UUID string `json:"uuid" form:"uuid" binding:"required"`
+}
