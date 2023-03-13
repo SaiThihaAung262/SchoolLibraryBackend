@@ -55,6 +55,10 @@ var (
 	borrowRepo       repository.BorrowRepository = repository.NewBorrowRepository(db)
 	borrowService    service.Borrowservice       = service.NewBorrowService(borrowRepo)
 	borrowController controller.BorrowController = controller.NewBorrowController(borrowService, bookService, teacherService, studentService, borrowLogService)
+
+	//For clients
+	//Clent login
+	clientAuthController controller.ClientAuthController = controller.NewClientAuthController(studentService, teacherService, jwtService)
 )
 
 func InitRoute() {
@@ -133,6 +137,13 @@ func InitRoute() {
 		borrowRoutes.POST("/create", borrowController.CreateBorrow)
 		borrowRoutes.GET("/get-history", borrowController.GetBorrowHistory)
 		borrowRoutes.POST("/update-status", borrowController.UpdateBorrowStatus)
+
+	}
+
+	//Client Login Route
+	clientAuthRoutes := apiRoutes.Group("client")
+	{
+		clientAuthRoutes.POST("/login", clientAuthController.ClientLogin)
 
 	}
 

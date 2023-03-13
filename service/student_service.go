@@ -79,7 +79,7 @@ func (service studentService) GetStudentByUUID(uuid string) (*model.Student, err
 
 func (service studentService) VerifyLogin(name string, password string) interface{} {
 	res := service.studentRepo.VerifyLogin(name)
-	if v, ok := res.(model.User); ok {
+	if v, ok := res.(model.Student); ok {
 		isPassword := password == v.Password
 		if v.Name == name && isPassword {
 			return res

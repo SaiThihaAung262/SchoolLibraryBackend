@@ -47,6 +47,20 @@ func (c *clientAuthController) ClientLogin(ctx *gin.Context) {
 	}
 
 	if loginDTO.Type == 1 {
+		loginResult := c.teacherService.VerifyLogin(loginDTO.Name, loginDTO.Password)
+
+		if v, ok := loginResult.(model.User); ok {
+			generateToken := c.jwtService.GenerateToken(strconv.FormatUint(v.ID, 10))
+			// v.Token =
+			responseData := LoginResponse{
+				Name:  v.Name,
+				Token: generateToken,
+			}
+
+			response := helper.ResponseData(0, "Login successfull", responseData)
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
 
 	} else {
 		loginResult := c.studentService.VerifyLogin(loginDTO.Name, loginDTO.Password)
@@ -65,6 +79,6 @@ func (c *clientAuthController) ClientLogin(ctx *gin.Context) {
 		}
 	}
 
-	response := helper.ResponseErrorData(504, "Invalid uesr name or password")
+	response := helper.ResponseErrorData(504, "Invalid username or password")
 	ctx.JSON(http.StatusOK, response)
 }

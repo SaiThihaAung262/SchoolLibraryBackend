@@ -14,6 +14,7 @@ type TeacherRepository interface {
 	UpdateTeacher(teacher model.Teacher) (*model.Teacher, error)
 	DeleteTeacher(id uint64) error
 	GetTeacherByUUID(uuid string) (*model.Teacher, error)
+	VerifyLogin(name string) interface{}
 }
 
 type teacherConnection struct {
@@ -120,4 +121,15 @@ func (db *teacherConnection) GetTeacherByUUID(uuid string) (*model.Teacher, erro
 		return nil, err
 	}
 	return teacher, nil
+}
+
+func (db *teacherConnection) VerifyLogin(name string) interface{} {
+	var teacher model.Teacher
+
+	res := db.connection.Where("name = ?", name).Take(&teacher)
+
+	if res.Error == nil {
+		return teacher
+	}
+	return nil
 }

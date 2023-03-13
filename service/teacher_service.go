@@ -16,6 +16,7 @@ type TeacherService interface {
 	UpdateTeacher(client dto.UpdateTeacherDTO) (*model.Teacher, error)
 	DeleteTeacher(id uint64) error
 	GetTeacherByUUID(uuid string) (*model.Teacher, error)
+	VerifyLogin(name string, password string) interface{}
 }
 type teacherService struct {
 	teacherRepo repository.TeacherRepository
@@ -74,4 +75,16 @@ func (service teacherService) DeleteTeacher(id uint64) error {
 func (service teacherService) GetTeacherByUUID(uuid string) (*model.Teacher, error) {
 	teacher, err := service.teacherRepo.GetTeacherByUUID(uuid)
 	return teacher, err
+}
+
+func (service teacherService) VerifyLogin(name string, password string) interface{} {
+	res := service.teacherRepo.VerifyLogin(name)
+	if v, ok := res.(model.Teacher); ok {
+		isPassword := password == v.Password
+		if v.Name == name && isPassword {
+			return res
+		}
+		return false
+	}
+	return false
 }
