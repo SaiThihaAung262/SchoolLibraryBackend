@@ -16,6 +16,7 @@ type StudentService interface {
 	UpdateStudent(student dto.UpdateStudentDTO) (*model.Student, error)
 	DeleteStudent(id uint64) error
 	GetStudentByUUID(uuid string) (*model.Student, error)
+	VerifyLogin(name string, password string) interface{}
 }
 type studentService struct {
 	studentRepo repository.SutudentRepository
@@ -74,4 +75,16 @@ func (service studentService) DeleteStudent(id uint64) error {
 func (service studentService) GetStudentByUUID(uuid string) (*model.Student, error) {
 	student, err := service.studentRepo.GetStudentByUUID(uuid)
 	return student, err
+}
+
+func (service studentService) VerifyLogin(name string, password string) interface{} {
+	res := service.studentRepo.VerifyLogin(name)
+	if v, ok := res.(model.User); ok {
+		isPassword := password == v.Password
+		if v.Name == name && isPassword {
+			return res
+		}
+		return false
+	}
+	return false
 }

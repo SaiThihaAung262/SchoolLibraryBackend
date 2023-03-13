@@ -14,6 +14,7 @@ type SutudentRepository interface {
 	UpdateStudent(student model.Student) (*model.Student, error)
 	DeleteStudent(id uint64) error
 	GetStudentByUUID(uuid string) (*model.Student, error)
+	VerifyLogin(name string) interface{}
 }
 
 type studentConnection struct {
@@ -125,4 +126,15 @@ func (db *studentConnection) GetStudentByUUID(uuid string) (*model.Student, erro
 		return nil, err
 	}
 	return student, nil
+}
+
+func (db *studentConnection) VerifyLogin(name string) interface{} {
+	var student model.Student
+
+	res := db.connection.Where("name = ?", name).Take(&student)
+
+	if res.Error == nil {
+		return student
+	}
+	return nil
 }
