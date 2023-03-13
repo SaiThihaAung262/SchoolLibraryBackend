@@ -8,6 +8,9 @@ type BorrowHistoryRequest struct {
 	Page     uint64 `json:"page" form:"page"`
 	PageSize uint64 `json:"page_size" form:"page_size"`
 	ID       uint64 `json:"id" form:"id"`
+	UserUUID string `json:"user_uuid" form:"user_uuid"`
+	BookUUID string `json:"book_uuid" form:"book_uuid"`
+	Status   uint64 `json:"status" form:"status"`
 }
 
 type ClientLoginDTO struct {

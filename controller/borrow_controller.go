@@ -158,6 +158,7 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 	reqDto := &dto.BorrowHistoryRequest{}
 	errDto := ctx.ShouldBind(&reqDto)
 	if errDto != nil {
+		fmt.Println("here have error <>>>>>>>>>>>>>>>")
 		response := helper.ResponseErrorData(500, errDto.Error())
 		ctx.JSON(http.StatusOK, response)
 		return

@@ -56,6 +56,18 @@ func (db *borrowConnection) GetBorrowHistory(req *dto.BorrowHistoryRequest) ([]m
 		filter += fmt.Sprintf(" and id = %d", req.ID)
 	}
 
+	if req.Status != 0 {
+		filter += fmt.Sprintf(" and status = %d", req.Status)
+	}
+
+	if req.UserUUID != "" {
+		filter += fmt.Sprintf(" and user_uuid = '%s'", req.UserUUID)
+	}
+
+	if req.BookUUID != "" {
+		filter += fmt.Sprintf(" and book_uuid = '%s'", req.BookUUID)
+	}
+
 	sql := fmt.Sprintf("select * from borrows %s order by created_at desc limit %v offset %v", filter, pageSize, offset)
 	res := db.connection.Raw(sql).Scan(&borrowHistory)
 
