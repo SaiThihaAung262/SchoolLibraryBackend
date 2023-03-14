@@ -69,6 +69,7 @@ func (c *clientAuthController) ClientLogin(ctx *gin.Context) {
 		}
 
 	} else {
+
 		loginResult := c.studentService.VerifyLogin(loginDTO.Name, loginDTO.Password)
 
 		if v, ok := loginResult.(model.Student); ok {

@@ -17,6 +17,7 @@ type BookService interface {
 	UpdateBook(book dto.UpdateBookDTO) (*model.Book, error)
 	DeleteBook(id uint64) error
 	GetBookByUUID(uuid string) (*model.Book, error)
+	GetBookByUUIDAndDate(req *dto.ReqBorrowCountByBookUUIDAndDateDto) (*model.Book, error)
 }
 
 type bookService struct {
@@ -82,4 +83,8 @@ func (service bookService) DeleteBook(id uint64) error {
 func (service bookService) GetBookByUUID(uuid string) (*model.Book, error) {
 	book, err := service.bookRepository.GetBookByUUID(uuid)
 	return book, err
+}
+
+func (service bookService) GetBookByUUIDAndDate(req *dto.ReqBorrowCountByBookUUIDAndDateDto) (*model.Book, error) {
+	return service.bookRepository.GetBookByUUIDAndDate(req)
 }

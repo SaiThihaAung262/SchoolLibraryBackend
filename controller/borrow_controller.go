@@ -17,6 +17,7 @@ type BorrowController interface {
 	CreateBorrow(ctx *gin.Context)
 	GetBorrowHistory(ctx *gin.Context)
 	UpdateBorrowStatus(ctx *gin.Context)
+	GetBookSummaryData(ctx *gin.Context)
 }
 
 type borrowController struct {
@@ -68,6 +69,12 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 
 	if book.BorrowQty >= book.AvailableQty {
 		response := helper.ResponseErrorData(500, "These books are under borrow")
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	if book.Status == 2 {
+		response := helper.ResponseErrorData(500, "These books have been Damage or Lost !")
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
@@ -302,4 +309,36 @@ func (c borrowController) UpdateBorrowStatus(ctx *gin.Context) {
 	response := helper.ResponseData(0, "success", helper.EmptyObj{})
 	ctx.JSON(http.StatusOK, response)
 
+}
+
+func (c borrowController) GetBookSummaryData(ctx *gin.Context) {
+	// reqDto := &dto.ReqBookSummary{}
+
+	reqDto := &dto.ReqBorrowCountByBookUUIDAndDateDto{}
+	errDto := ctx.ShouldBind(&reqDto)
+	if errDto != nil {
+		fmt.Println("here have error <>>>>>>>>>>>>>>>")
+		response := helper.ResponseErrorData(500, errDto.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	// total, errReq := c.borrowLogService.GetBorrowCountByBookUUIDAndDate(reqDto)
+	// if errReq != nil {
+	// 	response := helper.ResponseErrorData(500, errReq.Error())
+	// 	ctx.JSON(http.StatusOK, response)
+	// 	return
+	// }
+
+	// response := helper.ResponseData(0, "success", total)
+	// ctx.JSON(http.StatusOK, response)
+	res, errReq := c.bookService.GetBookByUUIDAndDate(reqDto)
+	if errReq != nil {
+		response := helper.ResponseErrorData(500, errReq.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	response := helper.ResponseData(0, "success", res)
+	ctx.JSON(http.StatusOK, response)
 }

@@ -138,6 +138,7 @@ func InitRoute() {
 		borrowRoutes.POST("/create", borrowController.CreateBorrow)
 		borrowRoutes.GET("/get-history", borrowController.GetBorrowHistory)
 		borrowRoutes.POST("/update-status", borrowController.UpdateBorrowStatus)
+		borrowRoutes.GET("/get-summary", borrowController.GetBookSummaryData)
 
 	}
 

@@ -45,3 +45,17 @@ type BorrowHistoryList struct {
 	List  []BorrowHistoryResponse `json:"list"`
 	Total int64                   `json:"total"`
 }
+
+type ReqBorrowCountByBookUUIDAndDateDto struct {
+	BookUUID  string `json:"book_uuid" form:"book_uuid"`
+	StartDate string `json:"start_date" form:"start_date"`
+	EndDate   string `json:"end_date" form:"end_date"`
+}
+
+type ReqBookSummary struct {
+	Page      uint64 `json:"page" form:"page"`
+	PageSize  uint64 `json:"page_size" form:"page_size"`
+	BookUUID  string `json:"book_uuid" form:"book_uuid" `
+	StartDate string `json:"start_date" form:"start_date"`
+	EndDate   string `json:"end_date" form:"end_date"`
+}

@@ -15,6 +15,7 @@ type BookRepository interface {
 	UpdateBook(book model.Book) (*model.Book, error)
 	DeleteBook(id uint64) error
 	GetBookByUUID(uuid string) (*model.Book, error)
+	GetBookByUUIDAndDate(req *dto.ReqBorrowCountByBookUUIDAndDateDto) (*model.Book, error)
 }
 
 type bookConnection struct {
@@ -62,8 +63,8 @@ func (db *bookConnection) GetAllBooks(req *dto.BookGetRequest) ([]model.Book, in
 
 	filter := " where deleted_at IS NULL"
 
-	if req.ID != 0 {
-		filter += fmt.Sprintf(" and id = %d", req.ID)
+	if req.UUID != "" {
+		filter += fmt.Sprintf(" and uuid = '%s'", req.UUID)
 
 	}
 
@@ -72,8 +73,8 @@ func (db *bookConnection) GetAllBooks(req *dto.BookGetRequest) ([]model.Book, in
 
 	}
 
-	if req.UUID != "" {
-		filter += fmt.Sprintf(" and uuid = %s", req.UUID)
+	if req.ID != 0 {
+		filter += fmt.Sprintf(" and uuid = %d", req.ID)
 
 	}
 
@@ -149,6 +150,37 @@ func (db *bookConnection) GetBookByUUID(uuid string) (*model.Book, error) {
 	book := &model.Book{}
 	myDb := db.connection.Model(&model.Book{})
 	myDb = myDb.Where("uuid = ?", uuid)
+	if err := myDb.First(&book).Error; err != nil {
+		return nil, err
+	}
+	return book, nil
+}
+
+func (db *bookConnection) GetBookByUUIDAndDate(req *dto.ReqBorrowCountByBookUUIDAndDateDto) (*model.Book, error) {
+
+	// var book model.Book
+
+	// filter := " where deleted_at IS NULL"
+	// if req.BookUUID != "" {
+	// 	filter += fmt.Sprintf(" AND book_uuid = '%s'", req.BookUUID)
+	// }
+
+	// if req.StartDate != "" && req.EndDate != "" {
+	// 	filter += fmt.Sprintf(" AND created_at BETWEEN '%s' AND '%s'", req.StartDate, req.EndDate)
+	// }
+
+	// sql := fmt.Sprintf("select * from books %s", filter)
+
+	// res := db.connection.Raw(sql).Scan(&book)
+	// if res.Error != nil {
+	// 	return nil, res.Error
+	// }
+
+	book := &model.Book{}
+	myDb := db.connection.Model(&model.Book{})
+	myDb = myDb.Where("uuid = ?", req.BookUUID)
+	myDb = myDb.Where("created_at BETWEEN ? AND ?", req.StartDate, req.EndDate).Find(&book)
+
 	if err := myDb.First(&book).Error; err != nil {
 		return nil, err
 	}
