@@ -158,6 +158,7 @@ func InitRoute() {
 		clientUserRoutes.GET("/get-categories", bookCategoryController.GetAllBookCategory)
 		clientUserRoutes.GET("/get-user", clientAuthController.GetClientByUUID)
 		clientUserRoutes.GET("/get-borrow-history", borrowController.GetBorrowHistory)
+		clientUserRoutes.POST("/borrow-book", borrowController.CreateBorrow)
 	}
 
 	//Media end points
