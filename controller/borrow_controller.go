@@ -312,18 +312,76 @@ func (c borrowController) UpdateBorrowStatus(ctx *gin.Context) {
 }
 
 func (c borrowController) GetBookSummaryData(ctx *gin.Context) {
-	// reqDto := &dto.ReqBookSummary{}
-
-	reqDto := &dto.ReqBorrowCountByBookUUIDAndDateDto{}
-	errDto := ctx.ShouldBind(&reqDto)
-	if errDto != nil {
+	reqSummaryDto := &dto.ReqBookSummary{}
+	errReqSummaryDto := ctx.ShouldBind(&reqSummaryDto)
+	if errReqSummaryDto != nil {
 		fmt.Println("here have error <>>>>>>>>>>>>>>>")
-		response := helper.ResponseErrorData(500, errDto.Error())
+		response := helper.ResponseErrorData(500, errReqSummaryDto.Error())
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
 
-	// total, errReq := c.borrowLogService.GetBorrowCountByBookUUIDAndDate(reqDto)
+	reqBookDto := &dto.BookGetRequest{}
+
+	//----------Bind Book req dto with req Summary dto----------
+	err := smapping.FillStruct(&reqBookDto, smapping.MapFields(&reqSummaryDto))
+	if err != nil {
+		fmt.Println("------Have error in Get Book By Summary 11111 ------", err.Error())
+	}
+
+	//----------Request Summary Data dto----------
+	reqSummaryDataDto := &dto.ReqBorrowCountByBookUUIDAndDateDto{}
+	errReqSummaryDataDto := smapping.FillStruct(&reqSummaryDataDto, smapping.MapFields(&reqSummaryDto))
+	if errReqSummaryDataDto != nil {
+		fmt.Println("------Have error in Get Book By Summary 11111 ------", err.Error())
+	}
+	// errDto := ctx.ShouldBind(&reqSummaryDataDto)
+	// if errDto != nil {
+	// 	fmt.Println("here have error <>>>>>>>>>>>>>>>")
+	// 	response := helper.ResponseErrorData(500, errDto.Error())
+	// 	ctx.JSON(http.StatusOK, response)
+	// 	return
+	// }
+
+	//Get all books
+	resultData, count, err := c.bookService.GetAllBooks(reqBookDto)
+
+	if err != nil {
+		response := helper.ResponseErrorData(500, err.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	var bookSummaryData helper.ResponseSummaryData
+
+	var bookSummaryDataList helper.ResponseSummaryDataList
+	bookSummaryDataList.Total = uint64(count)
+
+	for _, item := range resultData {
+		// fmt.Println(item.AvailableQty)
+		reqSummaryDataDto.BookUUID = item.UUID
+		bookSummaryData.BookDetail = item
+
+		total, errReq := c.borrowLogService.GetBorrowCountByBookUUIDAndDate(reqSummaryDataDto)
+		if errReq != nil {
+			response := helper.ResponseErrorData(500, errReq.Error())
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+		bookSummaryData.BorrowCount = total
+
+		book, errReq := c.bookService.GetBookByUUIDAndDate(reqSummaryDataDto)
+		if errReq != nil {
+			bookSummaryData.TotalBook = 0
+		} else {
+			bookSummaryData.TotalBook = book.AvailableQty
+		}
+		bookSummaryDataList.List = append(bookSummaryDataList.List, bookSummaryData)
+	}
+	response := helper.ResponseData(0, "success", bookSummaryDataList)
+	ctx.JSON(http.StatusOK, response)
+
+	// total, errReq := c.borrowLogService.GetBorrowCountByBookUUIDAndDate(reqSummaryDataDto)
 	// if errReq != nil {
 	// 	response := helper.ResponseErrorData(500, errReq.Error())
 	// 	ctx.JSON(http.StatusOK, response)
@@ -332,13 +390,14 @@ func (c borrowController) GetBookSummaryData(ctx *gin.Context) {
 
 	// response := helper.ResponseData(0, "success", total)
 	// ctx.JSON(http.StatusOK, response)
-	res, errReq := c.bookService.GetBookByUUIDAndDate(reqDto)
-	if errReq != nil {
-		response := helper.ResponseErrorData(500, errReq.Error())
-		ctx.JSON(http.StatusOK, response)
-		return
-	}
 
-	response := helper.ResponseData(0, "success", res)
-	ctx.JSON(http.StatusOK, response)
+	// res, errReq := c.bookService.GetBookByUUIDAndDate(reqDto)
+	// if errReq != nil {
+	// 	response := helper.ResponseErrorData(500, errReq.Error())
+	// 	ctx.JSON(http.StatusOK, response)
+	// 	return
+	// }
+
+	// response := helper.ResponseData(0, "success", bookSummaryDataList)
+	// ctx.JSON(http.StatusOK, response)
 }

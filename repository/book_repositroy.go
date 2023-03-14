@@ -158,31 +158,32 @@ func (db *bookConnection) GetBookByUUID(uuid string) (*model.Book, error) {
 
 func (db *bookConnection) GetBookByUUIDAndDate(req *dto.ReqBorrowCountByBookUUIDAndDateDto) (*model.Book, error) {
 
-	// var book model.Book
+	var book model.Book
 
-	// filter := " where deleted_at IS NULL"
-	// if req.BookUUID != "" {
-	// 	filter += fmt.Sprintf(" AND book_uuid = '%s'", req.BookUUID)
-	// }
-
-	// if req.StartDate != "" && req.EndDate != "" {
-	// 	filter += fmt.Sprintf(" AND created_at BETWEEN '%s' AND '%s'", req.StartDate, req.EndDate)
-	// }
-
-	// sql := fmt.Sprintf("select * from books %s", filter)
-
-	// res := db.connection.Raw(sql).Scan(&book)
-	// if res.Error != nil {
-	// 	return nil, res.Error
-	// }
-
-	book := &model.Book{}
-	myDb := db.connection.Model(&model.Book{})
-	myDb = myDb.Where("uuid = ?", req.BookUUID)
-	myDb = myDb.Where("created_at BETWEEN ? AND ?", req.StartDate, req.EndDate).Find(&book)
-
-	if err := myDb.First(&book).Error; err != nil {
-		return nil, err
+	filter := " where deleted_at IS NULL"
+	if req.BookUUID != "" {
+		filter += fmt.Sprintf(" AND uuid = '%s'", req.BookUUID)
 	}
-	return book, nil
+
+	if req.StartDate != "" && req.EndDate != "" {
+		filter += fmt.Sprintf(" AND created_at BETWEEN '%s' AND '%s'", req.StartDate, req.EndDate)
+	}
+
+	sql := fmt.Sprintf("select * from books %s", filter)
+
+	res := db.connection.Raw(sql).Scan(&book)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return &book, nil
+
+	// book := &model.Book{}
+	// myDb := db.connection.Model(&model.Book{})
+	// myDb = myDb.Where("uuid = ?", req.BookUUID)
+	// myDb = myDb.Where("created_at BETWEEN ? AND ?", req.StartDate, req.EndDate).Find(&book)
+
+	// if err := myDb.First(&book).Error; err != nil {
+	// 	return nil, err
+	// }
+	// return book, nil
 }

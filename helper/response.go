@@ -1,5 +1,7 @@
 package helper
 
+import "MyGO.com/m/model"
+
 type Response struct {
 	ErrorCode    uint64      `json:"err_code"`
 	ErrorMessage string      `json:"err_msg"`
@@ -33,4 +35,15 @@ func ResponseErrorData(err_code uint64, err string) ResponseErr {
 		ErrorMessage: err,
 	}
 	return response
+}
+
+type ResponseSummaryData struct {
+	BorrowCount uint64     `json:"borrow_count"`
+	BookDetail  model.Book `json:"book_data"`
+	TotalBook   uint64     `json:"total_book" form:"total_book"`
+}
+
+type ResponseSummaryDataList struct {
+	List  []ResponseSummaryData `json:"list" form:"list"`
+	Total uint64                `json:"total" form:"total"`
 }

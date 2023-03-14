@@ -44,7 +44,7 @@ func (db *borrowLogConnection) GetBorrowCountByBookUUIDAndDate(req *dto.ReqBorro
 		filter += fmt.Sprintf(" AND created_at BETWEEN '%s' AND '%s'", req.StartDate, req.EndDate)
 	}
 
-	countQuery := fmt.Sprintf("SELECT COUNT(1) AS 'borrow_count' FROM borrow_logs %s GROUP BY book_title", filter)
+	countQuery := fmt.Sprintf("SELECT COUNT(1) AS 'borrow_count' FROM borrow_logs %s GROUP BY book_uuid", filter)
 	if err := db.connection.Raw(countQuery).Scan(&total).Error; err != nil {
 		return 0, err
 	}
