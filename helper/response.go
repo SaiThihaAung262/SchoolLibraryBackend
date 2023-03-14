@@ -47,3 +47,8 @@ type ResponseSummaryDataList struct {
 	List  []ResponseSummaryData `json:"list" form:"list"`
 	Total uint64                `json:"total" form:"total"`
 }
+
+type ResponBookDetailByUUID struct {
+	BookDetail  model.Book `json:"book_data"`
+	BorrowCount uint64     `json:"borrow_count"`
+}

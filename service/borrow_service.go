@@ -13,6 +13,7 @@ type Borrowservice interface {
 	CreateBorrow(createDto dto.CreateBorrowDTO) error
 	GetBorrowHistory(req *dto.BorrowHistoryRequest) ([]model.Borrow, int64, error)
 	UpdateBorrowStatus(borrow dto.UpdateBorrowStatusDTO) (*model.Borrow, error)
+	IsAlreadyBorrowThisBook(userUUID string, bookUUID string) bool
 }
 
 type borrowService struct {
@@ -55,4 +56,9 @@ func (service borrowService) UpdateBorrowStatus(borrow dto.UpdateBorrowStatusDTO
 
 	return res, nil
 
+}
+
+func (service borrowService) IsAlreadyBorrowThisBook(userUUID string, bookUUID string) bool {
+	res := service.borrowRepo.IsAlreadyBorrowThisBook(userUUID, bookUUID)
+	return (res.Error == nil)
 }

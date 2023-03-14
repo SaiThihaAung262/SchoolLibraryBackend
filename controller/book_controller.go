@@ -16,7 +16,7 @@ type BookController interface {
 	GetAllBooks(ctx *gin.Context)
 	UpdateBook(ctx *gin.Context)
 	DeleteBook(ctx *gin.Context)
-	GetBookByUUID(ctx *gin.Context)
+	// GetBookByUUID(ctx *gin.Context)
 }
 
 type bookController struct {
@@ -151,30 +151,5 @@ func (c bookController) DeleteBook(ctx *gin.Context) {
 	}
 
 	response := helper.ResponseData(0, "success", helper.EmptyObj{})
-	ctx.JSON(http.StatusOK, response)
-}
-
-func (c bookController) GetBookByUUID(ctx *gin.Context) {
-	var dtoBook dto.GetBookByUUIDDto
-	errDto := ctx.ShouldBind(&dtoBook)
-	if errDto != nil {
-		response := helper.ResponseErrorData(500, errDto.Error())
-		ctx.JSON(http.StatusOK, response)
-		return
-	}
-
-	book, errGetBook := c.bookService.GetBookByUUID(dtoBook.UUID)
-	if errGetBook != nil {
-		if criteria.IsErrNotFound(errGetBook) {
-			response := helper.ResponseErrorData(500, "Cannot find book")
-			ctx.JSON(http.StatusOK, response)
-			return
-		}
-		response := helper.ResponseErrorData(500, errGetBook.Error())
-		ctx.JSON(http.StatusOK, response)
-		return
-	}
-
-	response := helper.ResponseData(0, "success", book)
 	ctx.JSON(http.StatusOK, response)
 }

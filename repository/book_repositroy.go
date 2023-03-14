@@ -16,6 +16,7 @@ type BookRepository interface {
 	DeleteBook(id uint64) error
 	GetBookByUUID(uuid string) (*model.Book, error)
 	GetBookByUUIDAndDate(req *dto.ReqBorrowCountByBookUUIDAndDateDto) (*model.Book, error)
+	UpdateBookBorrowQTY(id uint64, borrowQty uint64) error
 }
 
 type bookConnection struct {
@@ -116,6 +117,8 @@ func (db *bookConnection) UpdateBook(book model.Book) (*model.Book, error) {
 		}
 	}
 
+	fmt.Println("---------------Book borrow qty---------", book.BorrowQty)
+
 	err := db.connection.Model(&book).Where("id = ?", book.ID).Updates(model.Book{
 		Title:      book.Title,
 		CategoryID: book.CategoryID,
@@ -127,12 +130,27 @@ func (db *bookConnection) UpdateBook(book model.Book) (*model.Book, error) {
 		AvailableQty: book.AvailableQty,
 		BorrowQty:    book.BorrowQty,
 	}).Error
+
 	if err != nil {
 		fmt.Println("----Here have error in update book repo -----")
 		return nil, err
 
 	}
 	return &book, nil
+}
+
+func (db *bookConnection) UpdateBookBorrowQTY(id uint64, borrowQty uint64) error {
+
+	book := model.Book{}
+
+	// db.Model(&user).Select("Name", "Age").Updates(User{Name: "new_name", Age: 0})
+	err := db.connection.Model(&book).Where("id = ?", id).Select("borrow_qty").Updates(model.Book{BorrowQty: borrowQty}).Error
+
+	if err != nil {
+		fmt.Println("----Here have error in update borrow qty book repo -----")
+		return err
+	}
+	return nil
 }
 
 func (db *bookConnection) DeleteBook(id uint64) error {

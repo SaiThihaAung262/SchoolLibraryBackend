@@ -18,6 +18,7 @@ type BorrowController interface {
 	GetBorrowHistory(ctx *gin.Context)
 	UpdateBorrowStatus(ctx *gin.Context)
 	GetBookSummaryData(ctx *gin.Context)
+	GetBookByUUID(ctx *gin.Context)
 }
 
 type borrowController struct {
@@ -43,6 +44,7 @@ func NewBorrowController(borrowService service.Borrowservice,
 	}
 }
 
+// --------------Create Borrow-------------
 func (c borrowController) CreateBorrow(ctx *gin.Context) {
 	var createDto dto.CreateBorrowDTO
 	errDto := ctx.ShouldBind(&createDto)
@@ -53,6 +55,13 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 	}
 
 	fmt.Println("HEre is book uuid >>>>>>>>", createDto.BookUUID)
+
+	isAlreadyBoorowThisBook := c.borrowService.IsAlreadyBorrowThisBook(createDto.UserUUID, createDto.BookUUID)
+	if isAlreadyBoorowThisBook {
+		response := helper.ResponseErrorData(888, "Already borrow this book!")
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
 
 	//---------------Check is book exist---------------
 	book, errGetBook := c.bookService.GetBookByUUID(createDto.BookUUID)
@@ -161,6 +170,7 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// --------------Get Borrow History-------------
 func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 	reqDto := &dto.BorrowHistoryRequest{}
 	errDto := ctx.ShouldBind(&reqDto)
@@ -258,6 +268,7 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 
 }
 
+// --------------Update Borrow Status-------------
 func (c borrowController) UpdateBorrowStatus(ctx *gin.Context) {
 	var updateDto dto.UpdateBorrowStatusDTO
 	errDTO := ctx.ShouldBind(&updateDto)
@@ -299,8 +310,10 @@ func (c borrowController) UpdateBorrowStatus(ctx *gin.Context) {
 	bookToUpdate.ID = book.ID
 	bookToUpdate.AvailableQty = book.AvailableQty
 	bookToUpdate.BorrowQty = book.BorrowQty - 1
-	_, errUpdateBook := c.bookService.UpdateBook(bookToUpdate)
-	if err != nil {
+	// _, errUpdateBook := c.bookService.UpdateBook(bookToUpdate)
+	errUpdateBook := c.bookService.UpdateBookBorrowQTY(bookToUpdate.ID, bookToUpdate.BorrowQty)
+
+	if errUpdateBook != nil {
 		response := helper.ResponseErrorData(500, errUpdateBook.Error())
 		ctx.JSON(http.StatusOK, response)
 		return
@@ -311,6 +324,7 @@ func (c borrowController) UpdateBorrowStatus(ctx *gin.Context) {
 
 }
 
+// --------------Get Book Summary-------------
 func (c borrowController) GetBookSummaryData(ctx *gin.Context) {
 	reqSummaryDto := &dto.ReqBookSummary{}
 	errReqSummaryDto := ctx.ShouldBind(&reqSummaryDto)
@@ -333,15 +347,8 @@ func (c borrowController) GetBookSummaryData(ctx *gin.Context) {
 	reqSummaryDataDto := &dto.ReqBorrowCountByBookUUIDAndDateDto{}
 	errReqSummaryDataDto := smapping.FillStruct(&reqSummaryDataDto, smapping.MapFields(&reqSummaryDto))
 	if errReqSummaryDataDto != nil {
-		fmt.Println("------Have error in Get Book By Summary 11111 ------", err.Error())
+		fmt.Println("------Have error in Get Book By Summary 22222 ------", err.Error())
 	}
-	// errDto := ctx.ShouldBind(&reqSummaryDataDto)
-	// if errDto != nil {
-	// 	fmt.Println("here have error <>>>>>>>>>>>>>>>")
-	// 	response := helper.ResponseErrorData(500, errDto.Error())
-	// 	ctx.JSON(http.StatusOK, response)
-	// 	return
-	// }
 
 	//Get all books
 	resultData, count, err := c.bookService.GetAllBooks(reqBookDto)
@@ -380,24 +387,45 @@ func (c borrowController) GetBookSummaryData(ctx *gin.Context) {
 	}
 	response := helper.ResponseData(0, "success", bookSummaryDataList)
 	ctx.JSON(http.StatusOK, response)
+}
 
-	// total, errReq := c.borrowLogService.GetBorrowCountByBookUUIDAndDate(reqSummaryDataDto)
-	// if errReq != nil {
-	// 	response := helper.ResponseErrorData(500, errReq.Error())
-	// 	ctx.JSON(http.StatusOK, response)
-	// 	return
-	// }
+// --------------Get Book by UUID-------------
+func (c borrowController) GetBookByUUID(ctx *gin.Context) {
+	var dtoBook dto.GetBookByUUIDDto
+	errDto := ctx.ShouldBind(&dtoBook)
+	if errDto != nil {
+		response := helper.ResponseErrorData(500, errDto.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
 
-	// response := helper.ResponseData(0, "success", total)
-	// ctx.JSON(http.StatusOK, response)
+	reqSummaryDataDto := dto.ReqBorrowCountByBookUUIDAndDateDto{}
+	reqSummaryDataDto.BookUUID = dtoBook.UUID
 
-	// res, errReq := c.bookService.GetBookByUUIDAndDate(reqDto)
-	// if errReq != nil {
-	// 	response := helper.ResponseErrorData(500, errReq.Error())
-	// 	ctx.JSON(http.StatusOK, response)
-	// 	return
-	// }
+	borrowCount, errReq := c.borrowLogService.GetBorrowCountByBookUUIDAndDate(&reqSummaryDataDto)
+	if errReq != nil {
+		response := helper.ResponseErrorData(500, errReq.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
 
-	// response := helper.ResponseData(0, "success", bookSummaryDataList)
-	// ctx.JSON(http.StatusOK, response)
+	book, errGetBook := c.bookService.GetBookByUUID(dtoBook.UUID)
+	if errGetBook != nil {
+		if criteria.IsErrNotFound(errGetBook) {
+			response := helper.ResponseErrorData(500, "Cannot find book")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+		response := helper.ResponseErrorData(500, errGetBook.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	responseData := helper.ResponBookDetailByUUID{
+		BookDetail:  *book,
+		BorrowCount: borrowCount,
+	}
+
+	response := helper.ResponseData(0, "success", responseData)
+	ctx.JSON(http.StatusOK, response)
 }

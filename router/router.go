@@ -154,7 +154,7 @@ func InitRoute() {
 	clientUserRoutes.Use(middleware.AuthorizeJWT(jwtService))
 	{
 		clientUserRoutes.GET("/get-books", bookController.GetAllBooks)
-		clientUserRoutes.GET("/get-book-detail", bookController.GetBookByUUID)
+		clientUserRoutes.GET("/get-book-detail", borrowController.GetBookByUUID)
 		clientUserRoutes.GET("/get-categories", bookCategoryController.GetAllBookCategory)
 		clientUserRoutes.GET("/get-user", clientAuthController.GetClientByUUID)
 		clientUserRoutes.GET("/get-borrow-history", borrowController.GetBorrowHistory)

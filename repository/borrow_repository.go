@@ -12,6 +12,7 @@ type BorrowRepository interface {
 	CreateBorrow(borrow model.Borrow) error
 	GetBorrowHistory(req *dto.BorrowHistoryRequest) ([]model.Borrow, int64, error)
 	UpdateBorrowStatus(borrow model.Borrow) (*model.Borrow, error)
+	IsAlreadyBorrowThisBook(userUUID string, bookUUID string) (tx *gorm.DB)
 }
 
 type borrowConnection struct {
@@ -94,4 +95,9 @@ func (db *borrowConnection) UpdateBorrowStatus(borrow model.Borrow) (*model.Borr
 
 	}
 	return &borrow, nil
+}
+
+func (db *borrowConnection) IsAlreadyBorrowThisBook(userUUID string, bookUUID string) (tx *gorm.DB) {
+	var borrow model.Borrow
+	return db.connection.Where("user_uuid = ? and book_uuid = ? and status = 1", userUUID, bookUUID).Take(&borrow)
 }
