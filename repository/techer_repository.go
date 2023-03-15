@@ -126,7 +126,7 @@ func (db *teacherConnection) GetTeacherByUUID(uuid string) (*model.Teacher, erro
 func (db *teacherConnection) VerifyLogin(name string) interface{} {
 	var teacher model.Teacher
 
-	res := db.connection.Where("name = ?", name).Take(&teacher)
+	res := db.connection.Where("email = ?", name).Take(&teacher)
 
 	if res.Error == nil {
 		return teacher

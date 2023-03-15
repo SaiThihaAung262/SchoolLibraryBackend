@@ -77,11 +77,11 @@ func (service teacherService) GetTeacherByUUID(uuid string) (*model.Teacher, err
 	return teacher, err
 }
 
-func (service teacherService) VerifyLogin(name string, password string) interface{} {
-	res := service.teacherRepo.VerifyLogin(name)
+func (service teacherService) VerifyLogin(email string, password string) interface{} {
+	res := service.teacherRepo.VerifyLogin(email)
 	if v, ok := res.(model.Teacher); ok {
 		isPassword := password == v.Password
-		if v.Name == name && isPassword {
+		if v.Email == email && isPassword {
 			return res
 		}
 		return false

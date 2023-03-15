@@ -51,7 +51,7 @@ func (c *clientAuthController) ClientLogin(ctx *gin.Context) {
 	}
 
 	if loginDTO.Type == 1 {
-		loginResult := c.teacherService.VerifyLogin(loginDTO.Name, loginDTO.Password)
+		loginResult := c.teacherService.VerifyLogin(loginDTO.Email, loginDTO.Password)
 
 		if v, ok := loginResult.(model.Teacher); ok {
 			generateToken := c.jwtService.GenerateToken(strconv.FormatUint(v.ID, 10))
@@ -70,7 +70,7 @@ func (c *clientAuthController) ClientLogin(ctx *gin.Context) {
 
 	} else {
 
-		loginResult := c.studentService.VerifyLogin(loginDTO.Name, loginDTO.Password)
+		loginResult := c.studentService.VerifyLogin(loginDTO.Email, loginDTO.Password)
 
 		if v, ok := loginResult.(model.Student); ok {
 			generateToken := c.jwtService.GenerateToken(strconv.FormatUint(v.ID, 10))

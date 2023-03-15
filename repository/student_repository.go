@@ -131,7 +131,7 @@ func (db *studentConnection) GetStudentByUUID(uuid string) (*model.Student, erro
 func (db *studentConnection) VerifyLogin(name string) interface{} {
 	var student model.Student
 
-	res := db.connection.Where("name = ?", name).Take(&student)
+	res := db.connection.Where("email = ?", name).Take(&student)
 
 	if res.Error == nil {
 		return student
