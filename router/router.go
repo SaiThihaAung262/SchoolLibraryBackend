@@ -62,6 +62,11 @@ var (
 	punishmentService    service.PunishmentService       = service.NewPunishmentService(punishmentRepo)
 	punishmentController controller.PunishmentController = controller.NewPunishmentController(punishmentService)
 
+	//SystemConfig
+	systemConfigRepo       repository.SystemConfigRepository = repository.NewSystemConfigRepo(db)
+	systemConfigService    service.SystemConfigService       = service.NewSystemConfigService(systemConfigRepo)
+	systemConfigController controller.SystemConfigController = controller.NewSystemConfigController(systemConfigService)
+
 	//For clients
 	//Clent login
 	clientAuthController controller.ClientAuthController = controller.NewClientAuthController(studentService, teacherService, jwtService)
@@ -155,6 +160,17 @@ func InitRoute() {
 		punishRoutes.GET("/get", punishmentController.GetPunishmentData)
 		punishRoutes.POST("/update", punishmentController.UpdatePunishment)
 		punishRoutes.POST("/delete", punishmentController.DeletePunishment)
+
+	}
+
+	//SystemConfig end points
+	systemConfigRoutes := apiRoutes.Group("system-config")
+	// borrowRoutes.Use(middleware.AuthorizeJWT(jwtService))
+	{
+		systemConfigRoutes.POST("/create", systemConfigController.CreateSystemConfg)
+		systemConfigRoutes.GET("/get", systemConfigController.GetSystemConfig)
+		systemConfigRoutes.POST("/update", systemConfigController.UpdateSystemConfig)
+		systemConfigRoutes.POST("/delete", systemConfigController.DeleteSystemConfig)
 
 	}
 
