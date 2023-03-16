@@ -50,7 +50,7 @@ func (c *clientAuthController) ClientLogin(ctx *gin.Context) {
 		return
 	}
 
-	if loginDTO.Type == 1 {
+	if loginDTO.Type == model.TeacherLoginType {
 		loginResult := c.teacherService.VerifyLogin(loginDTO.Email, loginDTO.Password)
 
 		if v, ok := loginResult.(model.Teacher); ok {
@@ -68,7 +68,7 @@ func (c *clientAuthController) ClientLogin(ctx *gin.Context) {
 			return
 		}
 
-	} else {
+	} else if loginDTO.Type == model.StudentLoginType {
 
 		loginResult := c.studentService.VerifyLogin(loginDTO.Email, loginDTO.Password)
 

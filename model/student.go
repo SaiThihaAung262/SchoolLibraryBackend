@@ -6,6 +6,10 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	StudentLoginType = 2
+)
+
 type Student struct {
 	ID        uint64 `gorm:"primary_key:auto_increment" json:"id"`
 	UUID      string `gorm:"unique;not null" json:"uuid"`

@@ -6,6 +6,14 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	BookBorrowingStatus = 1
+	BookReturnedStatus  = 2
+
+	TeacherBorrow = 1
+	StudentBorrow = 2
+)
+
 type Borrow struct {
 	ID        uint64 `gorm:"primary_key:auto_increment" json:"id"`
 	Type      uint64 `gorm:"column:type;not null" json:"type"`

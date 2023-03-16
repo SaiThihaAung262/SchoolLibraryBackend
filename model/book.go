@@ -6,6 +6,12 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	BookAvailiableStatus = 1
+	BookDamageLostStatus = 2
+	BookAllGoneStatus    = 3
+)
+
 type Book struct {
 	ID           uint64 `gorm:"primary_key:auto_increment" json:"id"`
 	UUID         string `gorm:"unique;not null" json:"uuid"`

@@ -33,7 +33,7 @@ func (service borrowService) CreateBorrow(createDto dto.CreateBorrowDTO) error {
 	if err != nil {
 		fmt.Println("---Error in fill struct service ------", err.Error())
 	}
-	borrow.Status = 1
+	borrow.Status = model.BookBorrowingStatus
 	return service.borrowRepo.CreateBorrow(borrow)
 }
 

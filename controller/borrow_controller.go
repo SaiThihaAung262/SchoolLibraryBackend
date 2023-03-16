@@ -82,7 +82,7 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 		return
 	}
 
-	if book.Status == 2 {
+	if book.Status == model.BookDamageLostStatus {
 		response := helper.ResponseErrorData(500, "These books have been Damage or Lost !")
 		ctx.JSON(http.StatusOK, response)
 		return
@@ -91,7 +91,7 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 	var userTeacher model.Teacher
 	var userStudent model.Student
 	//---------------Check type for Teacher or student---------------
-	if createDto.Type == 1 {
+	if createDto.Type == model.TeacherBorrow {
 		teacher, errGetTeacher := c.teacherService.GetTeacherByUUID(createDto.UserUUID)
 		if errGetTeacher != nil {
 			if criteria.IsErrNotFound(errGetTeacher) {
@@ -104,7 +104,7 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 			return
 		}
 		userTeacher = *teacher
-	} else {
+	} else if createDto.Type == model.StudentBorrow {
 		student, errGetStudent := c.studentService.GetStudentByUUID(createDto.UserUUID)
 		if errGetStudent != nil {
 			if criteria.IsErrNotFound(errGetStudent) {
@@ -134,19 +134,20 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 	borrowLog.BookUUID = book.UUID
 	borrowLog.BookTitle = book.Title
 
-	if createDto.Type == 1 {
+	if createDto.Type == model.TeacherBorrow {
 		borrowLog.UserID = userTeacher.ID
 		borrowLog.UserUUID = userTeacher.UUID
 		borrowLog.UserName = userTeacher.Name
 		borrowLog.Department = userTeacher.Department
 
-	} else {
+	} else if createDto.Type == model.StudentBorrow {
 		borrowLog.UserID = userStudent.ID
 		borrowLog.UserUUID = userStudent.UUID
 		borrowLog.UserName = userStudent.Name
 		borrowLog.RoleNo = userStudent.RoleNo
 		borrowLog.Year = userStudent.Year
 	}
+
 	errCreateLog := c.borrowLogService.CreateBorrowLog(borrowLog)
 	if errCreateLog != nil {
 		response := helper.ResponseErrorData(500, errCreateLog.Error())
@@ -210,7 +211,7 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 
 		//---------------Get User Data to response---------------
 		var borrowUser dto.BorrowUser
-		if item.Type == 1 {
+		if item.Type == model.TeacherBorrow {
 			teacher, errGetTeacher := c.teacherService.GetTeacherByUUID(item.UserUUID)
 			if errGetTeacher != nil {
 				if criteria.IsErrNotFound(errGetTeacher) {
@@ -229,7 +230,7 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 				ctx.JSON(http.StatusOK, response)
 				return
 			}
-		} else {
+		} else if item.Type == model.StudentBorrow {
 			student, errGetStudent := c.studentService.GetStudentByUUID(item.UserUUID)
 			if errGetStudent != nil {
 				if criteria.IsErrNotFound(errGetStudent) {
