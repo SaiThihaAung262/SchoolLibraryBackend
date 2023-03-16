@@ -57,6 +57,11 @@ var (
 	borrowService    service.Borrowservice       = service.NewBorrowService(borrowRepo)
 	borrowController controller.BorrowController = controller.NewBorrowController(borrowService, bookService, teacherService, studentService, borrowLogService)
 
+	//Punishment
+	punishmentRepo       repository.PunishmentRepository = repository.NewPunishmentRepository(db)
+	punishmentService    service.PunishmentService       = service.NewPunishmentService(punishmentRepo)
+	punishmentController controller.PunishmentController = controller.NewPunishmentController(punishmentService)
+
 	//For clients
 	//Clent login
 	clientAuthController controller.ClientAuthController = controller.NewClientAuthController(studentService, teacherService, jwtService)
@@ -139,6 +144,17 @@ func InitRoute() {
 		borrowRoutes.GET("/get-history", borrowController.GetBorrowHistory)
 		borrowRoutes.POST("/update-status", borrowController.UpdateBorrowStatus)
 		borrowRoutes.GET("/get-summary", borrowController.GetBookSummaryData)
+
+	}
+
+	//Punishmet end points
+	punishRoutes := apiRoutes.Group("punishment")
+	// borrowRoutes.Use(middleware.AuthorizeJWT(jwtService))
+	{
+		punishRoutes.POST("/create", punishmentController.CreatePunishment)
+		punishRoutes.GET("/get", punishmentController.GetPunishmentData)
+		punishRoutes.POST("/update", punishmentController.UpdatePunishment)
+		punishRoutes.POST("/delete", punishmentController.DeletePunishment)
 
 	}
 
