@@ -88,7 +88,7 @@ func (c *clientAuthController) ClientLogin(ctx *gin.Context) {
 		}
 	}
 
-	response := helper.ResponseErrorData(504, "Invalid username or password")
+	response := helper.ResponseErrorData(504, "Invalid email or password")
 	ctx.JSON(http.StatusOK, response)
 }
 
