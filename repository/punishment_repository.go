@@ -46,9 +46,8 @@ func (db *punishmentConnection) InsertPunishment(punishment model.Punishment) (*
 
 func (db *punishmentConnection) UpdatePunishment(punishment model.Punishment) (*model.Punishment, error) {
 	err := db.connection.Model(&punishment).Where("id = ?", punishment.ID).Updates(model.Punishment{
-		PackageName:  punishment.PackageName,
-		Duration:     punishment.Duration,
-		PunishAmount: punishment.PunishAmount,
+		PackageName: punishment.PackageName,
+		Duration:    punishment.Duration,
 	}).Error
 	if err != nil {
 		fmt.Println("Error at update student category repository----")
