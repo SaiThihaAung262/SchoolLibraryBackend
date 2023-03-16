@@ -52,7 +52,7 @@ func (service systemConfigService) UpdateSystemConfig(systemConfig dto.UpdateSys
 	configToUpdate := model.SystemConfig{}
 	err := smapping.FillStruct(&configToUpdate, smapping.MapFields(&systemConfig))
 	if err != nil {
-		fmt.Println("------Have error in update bookcategory servcie ------", err.Error())
+		fmt.Println("------Have error in update System Config servcie ------", err.Error())
 	}
 
 	res, errRepo := service.systemConfigRepo.UpdateSystemConfig(configToUpdate)

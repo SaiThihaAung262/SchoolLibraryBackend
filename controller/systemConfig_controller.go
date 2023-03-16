@@ -31,6 +31,8 @@ type SystemConfigResp struct {
 	ID                    uint64 `json:"id"`
 	TeacherCanBorrowCount uint64 `json:"teacher_can_borrow_count"`
 	StudentCanBorrowCount uint64 `json:"student_can_borrow_count"`
+	TeacherPunishAmt      uint64 `json:"teacher_punishment_amt"`
+	StudentPunishAmt      uint64 `json:"student_punishment_amt"`
 }
 
 func (c systemConfigController) CreateSystemConfg(ctx *gin.Context) {
@@ -76,6 +78,8 @@ func (c systemConfigController) GetSystemConfig(ctx *gin.Context) {
 		ID:                    uint64(result.ID),
 		TeacherCanBorrowCount: result.TeacherCanBorrowCount,
 		StudentCanBorrowCount: result.StudentCanBorrowCount,
+		TeacherPunishAmt:      result.TeacherPunishAmt,
+		StudentPunishAmt:      result.StudentPunishAmt,
 	}
 
 	response := helper.ResponseData(0, "success", responseData)

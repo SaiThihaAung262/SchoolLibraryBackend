@@ -50,9 +50,19 @@ func (db *systemConfigConnection) UpdateSystemConfig(systemConfig model.SystemCo
 
 	updateSystemConfig := model.SystemConfig{}
 
-	err := db.connection.Model(&updateSystemConfig).Where("id = ?", systemConfig.ID).Select("*").Updates(model.SystemConfig{
+	fmt.Println("<<<<<<<< Here is id in update sys config reo=po >>>>>>>", systemConfig.ID)
+
+	// err := db.connection.Model(&book).Where("id = ?", id).Select("borrow_qty").Updates(model.Book{BorrowQty: borrowQty}).Error
+
+	err := db.connection.Model(&updateSystemConfig).Where("id = ?", systemConfig.ID).Select("teacher_can_borrow_count",
+		"student_can_borrow_count",
+		"teacher_punishment_amt",
+		"student_punishment_amt").Updates(model.SystemConfig{
+
 		TeacherCanBorrowCount: systemConfig.TeacherCanBorrowCount,
 		StudentCanBorrowCount: systemConfig.StudentCanBorrowCount,
+		TeacherPunishAmt:      systemConfig.TeacherPunishAmt,
+		StudentPunishAmt:      systemConfig.StudentPunishAmt,
 	}).Error
 
 	if err != nil {
