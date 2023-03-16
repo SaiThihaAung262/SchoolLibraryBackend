@@ -45,26 +45,32 @@ func (db *punishmentConnection) InsertPunishment(punishment model.Punishment) (*
 }
 
 func (db *punishmentConnection) UpdatePunishment(punishment model.Punishment) (*model.Punishment, error) {
-	// err := db.connection.Model(&punishment).Where("id = ?", punishment.ID).Updates(model.Punishment{}).Error
-	// if err != nil {
-	// 	fmt.Println("Error at update student category repository----")
-	// 	return nil, err
-	// }
-	// return &punishment, nil
-
-	updatePunishment := model.Punishment{}
-
-	err := db.connection.Model(&updatePunishment).Where("id = ?", punishment.ID).Select("*").Updates(model.Punishment{
+	err := db.connection.Model(&punishment).Where("id = ?", punishment.ID).Updates(model.Punishment{
 		PackageName:  punishment.PackageName,
 		Duration:     punishment.Duration,
 		PunishAmount: punishment.PunishAmount,
 	}).Error
-
 	if err != nil {
-		fmt.Println("----Here have error in update borrow qty book repo -----")
+		fmt.Println("Error at update student category repository----")
 		return nil, err
 	}
-	return &updatePunishment, nil
+	return &punishment, nil
+
+	// updatePunishment := model.Punishment{}
+
+	// fmt.Println("----------Hre is punishent ID--------", punishment.ID)
+
+	// err := db.connection.Model(&updatePunishment).Where("id = ?", punishment.ID).UpdateColumns(model.Punishment{
+	// 	PackageName:  punishment.PackageName,
+	// 	Duration:     punishment.Duration,
+	// 	PunishAmount: punishment.PunishAmount,
+	// }).Error
+
+	// if err != nil {
+	// 	fmt.Println("----Here have error in update borrow qty book repo -----")
+	// 	return nil, err
+	// }
+	// return &updatePunishment, nil
 }
 
 func (db *punishmentConnection) DeletePunishment(id uint64) error {

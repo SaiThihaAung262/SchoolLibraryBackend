@@ -51,7 +51,8 @@ func (service punishmentService) UpdatePunishment(punishment dto.UpdatePunishmen
 	punishmentToUpdate := model.Punishment{}
 	err := smapping.FillStruct(&punishmentToUpdate, smapping.MapFields(&punishment))
 	if err != nil {
-		fmt.Println("------Have error in update bookcategory servcie ------", err.Error())
+		fmt.Println("------Have error in update Punishment servcie ------", err.Error())
+		return nil, err
 	}
 
 	res, errRepo := service.punishmentRepo.UpdatePunishment(punishmentToUpdate)

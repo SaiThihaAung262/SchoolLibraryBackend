@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
 	"MyGO.com/m/dto"
@@ -80,6 +81,8 @@ func (c punsihmentController) UpdatePunishment(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
+
+	fmt.Println("-------------herei s update id in controller----------", updateDto.ID)
 
 	res, err := c.service.UpdatePunishment(updateDto)
 	if err != nil {
