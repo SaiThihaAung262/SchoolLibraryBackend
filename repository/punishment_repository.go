@@ -61,11 +61,13 @@ func (db *punishmentConnection) UpdatePunishment(punishment model.Punishment) (*
 
 	err := db.connection.Model(&updatePunishment).Where("id = ?", punishment.ID).Select(
 		"package_name",
-		"duration",
+		"duration_start",
+		"duration_end",
 		"teacher_punishment_amt",
-		"student_punishment_amt	").Updates(model.Punishment{
+		"student_punishment_amt").Updates(model.Punishment{
 		PackageName:         punishment.PackageName,
-		Duration:            punishment.Duration,
+		DurationStart:       punishment.DurationStart,
+		DurationEnd:         punishment.DurationEnd,
 		TeacherPunishAmount: punishment.TeacherPunishAmount,
 		StudentPunishAmount: punishment.StudentPunishAmount,
 	}).Error

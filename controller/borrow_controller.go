@@ -381,17 +381,12 @@ func CalcExpireDayAndPunishAmt(c borrowController, ctx *gin.Context, expireTime 
 		// 	}
 		// }
 
-		if expiredDay < item.Duration {
+		if expiredDay >= item.DurationStart && expiredDay < item.DurationEnd {
 			punishmentAmt = expiredDay * item.TeacherPunishAmount
 			fmt.Println("here is index", index)
 			return expiredDay, punishmentAmt
 		}
-		// if expiredDay > item.Duration && expiredDay < punishmentLists[index+1].Duration {
-		// 	expWeekOrMonth := expiredDay / item.Duration
-		// 	punishmentAmt = expWeekOrMonth * item.TeacherPunishAmount
-		// 	fmt.Println("here is index bla bla bla", index)
-		// 	return expiredDay, punishmentAmt
-		// }
+
 	}
 
 	return expiredDay, punishmentAmt
