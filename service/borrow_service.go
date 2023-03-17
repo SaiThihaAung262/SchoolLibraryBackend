@@ -10,10 +10,11 @@ import (
 )
 
 type Borrowservice interface {
-	CreateBorrow(createDto dto.CreateBorrowDTO) error
+	CreateBorrow(createDto dto.CreateBorrowDTO) (*model.Borrow, error)
 	GetBorrowHistory(req *dto.BorrowHistoryRequest) ([]model.Borrow, int64, error)
 	UpdateBorrowStatus(borrow dto.UpdateBorrowStatusDTO) (*model.Borrow, error)
 	IsAlreadyBorrowThisBook(userUUID string, bookUUID string) bool
+	GetBorrowingAndExpireData(req *dto.BorrowHistoryRequest) ([]model.Borrow, int64, error)
 }
 
 type borrowService struct {
@@ -26,7 +27,7 @@ func NewBorrowService(borrowRepo repository.BorrowRepository) Borrowservice {
 	}
 }
 
-func (service borrowService) CreateBorrow(createDto dto.CreateBorrowDTO) error {
+func (service borrowService) CreateBorrow(createDto dto.CreateBorrowDTO) (*model.Borrow, error) {
 	var borrow model.Borrow
 
 	err := smapping.FillStruct(&borrow, smapping.MapFields(&createDto))
@@ -39,6 +40,11 @@ func (service borrowService) CreateBorrow(createDto dto.CreateBorrowDTO) error {
 
 func (service borrowService) GetBorrowHistory(req *dto.BorrowHistoryRequest) ([]model.Borrow, int64, error) {
 	res, total, err := service.borrowRepo.GetBorrowHistory(req)
+	return res, total, err
+}
+
+func (service borrowService) GetBorrowingAndExpireData(req *dto.BorrowHistoryRequest) ([]model.Borrow, int64, error) {
+	res, total, err := service.borrowRepo.GetBorrowingAndExpireData(req)
 	return res, total, err
 }
 

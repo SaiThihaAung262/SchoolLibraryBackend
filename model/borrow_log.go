@@ -6,6 +6,7 @@ import (
 
 type BorrowLog struct {
 	ID         uint64 `gorm:"primary_key:auto_increment" json:"id"`
+	BorrowID   uint64 `gorm:"column:borrow_id;not null" json:"borrow_id"`
 	Type       uint64 `gorm:"column:type;not null" json:"type"`
 	UserID     uint64 `gorm:"column:user_id;not null" json:"user_id"`
 	UserUUID   string `gorm:"column:user_uuid;not null" json:"user_uuid"`

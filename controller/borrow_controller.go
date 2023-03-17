@@ -100,10 +100,9 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 	//*Get User Borrowing book count
 	reqBorrowCountDto := &dto.BorrowHistoryRequest{
 		UserUUID: createDto.UserUUID,
-		Status:   model.BookBorrowingStatus,
 	}
 
-	_, borrowingCount, errGetBorrowingCount := c.borrowService.GetBorrowHistory(reqBorrowCountDto)
+	_, borrowingCount, errGetBorrowingCount := c.borrowService.GetBorrowingAndExpireData(reqBorrowCountDto)
 	if errGetBorrowingCount != nil {
 		response := helper.ResponseErrorData(500, errGetBorrowingCount.Error())
 		ctx.JSON(http.StatusOK, response)
@@ -171,7 +170,7 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 	}
 
 	//*---------------Create borrow---------------
-	err := c.borrowService.CreateBorrow(createDto)
+	borrowRes, err := c.borrowService.CreateBorrow(createDto)
 	if err != nil {
 		response := helper.ResponseErrorData(500, err.Error())
 		ctx.JSON(http.StatusOK, response)
@@ -180,6 +179,7 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 
 	//*---------------Create borrow logs---------------
 	var borrowLog model.BorrowLog
+	borrowLog.BorrowID = borrowRes.ID
 	borrowLog.Type = createDto.Type
 	borrowLog.BookID = book.ID
 	borrowLog.BookUUID = book.UUID
@@ -346,8 +346,6 @@ func CalcExpireDayAndPunishAmt(c borrowController, ctx *gin.Context, expireTime 
 
 	expiredDay = uint64(calcExpireTime.Hours() / 24) // asssing value to Expired Day
 
-	fmt.Println("Here is Expired day ---------", expiredDay, data.User.UUID, data.Book.UUID)
-
 	//Get Punishment Data
 	punishmentLists, err := c.punishmentService.GetPunishmentData()
 
@@ -357,36 +355,56 @@ func CalcExpireDayAndPunishAmt(c borrowController, ctx *gin.Context, expireTime 
 		ctx.Abort()
 	}
 
-	for index, item := range punishmentLists {
-		// if index == 0 {
-		// 	if expiredDay > 0 && expiredDay < item.Duration {
-		// 		fmt.Println("here is in loop of day", expiredDay, data.Book.UUID)
-		// 		punishmentAmt = expiredDay * item.TeacherPunishAmount
-		// 		return expiredDay, punishmentAmt
-
-		// 	}
-		// } else {
-		// 	if expiredDay > punishmentLists[index-1].Duration && expiredDay < item.Duration {
-
-		// 		fmt.Println("here is in loop of not day", expiredDay, data.Book.UUID)
-
-		// 		expWeekOrMonth := expiredDay / item.Duration
-
-		// 		// punishmentAmt = expiredDay * item.TeacherPunishAmount
-		// 		punishmentAmt = expWeekOrMonth * item.TeacherPunishAmount
-
-		// 		fmt.Println("------Here is exp week or month----", expWeekOrMonth, item.Duration)
-
-		// 		return expiredDay, punishmentAmt
-		// 	}
-		// }
-
-		if expiredDay >= item.DurationStart && expiredDay < item.DurationEnd {
-			punishmentAmt = expiredDay * item.TeacherPunishAmount
-			fmt.Println("here is index", index)
-			return expiredDay, punishmentAmt
+	for _, item := range punishmentLists {
+		if expiredDay >= item.DurationStart && expiredDay < item.DurationEnd && expiredDay < punishmentLists[0].DurationEnd {
+			if data.Type == model.TeacherBorrow {
+				punishmentAmt = item.TeacherPunishAmount
+			} else if data.Type == model.StudentBorrow {
+				punishmentAmt = item.StudentPunishAmount
+			}
 		}
 
+		if expiredDay > item.DurationEnd {
+			var expiredDayOrWeekOryear uint64
+			myRemainDay := expiredDay % item.DurationEnd
+			// fmt.Println("---------borrow id and remainer ----", data.ID, myRemainDay)
+			if myRemainDay > 0 {
+				expiredDayOrWeekOryear = (expiredDay / item.DurationEnd) + 1
+			} else {
+				expiredDayOrWeekOryear = expiredDay / item.DurationEnd
+			}
+
+			if data.Type == model.TeacherBorrow {
+				punishmentAmt = expiredDayOrWeekOryear * item.TeacherPunishAmount
+			} else if data.Type == model.StudentBorrow {
+				punishmentAmt = expiredDayOrWeekOryear * item.StudentPunishAmount
+
+			}
+			// fmt.Println("expiredDayOrWeekOryear and  amount 22222", expiredDayOrWeekOryear, item.TeacherPunishAmount)
+		}
+
+	}
+
+	//check borrow status and expired days to Update borrow status to expired
+	if data.Status == 1 && expiredDay > 0 {
+		updatStatusDto := dto.UpdateBorrowStatusDTO{
+			ID:       data.ID,
+			UserUUID: data.User.UUID,
+			BookUUID: data.Book.UUID,
+			Type:     data.Type,
+			Status:   model.BookBorrowExpireStatus,
+		}
+		_, updateErr := c.borrowService.UpdateBorrowStatus(updatStatusDto)
+		if err != nil {
+			if criteria.IsErrNotFound(err) {
+				response := helper.ResponseErrorData(500, "Cannot find")
+				ctx.JSON(http.StatusOK, response)
+				ctx.Abort()
+			}
+			response := helper.ResponseErrorData(500, updateErr.Error())
+			ctx.JSON(http.StatusOK, response)
+			ctx.Abort()
+		}
 	}
 
 	return expiredDay, punishmentAmt
