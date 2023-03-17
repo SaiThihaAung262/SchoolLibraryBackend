@@ -31,14 +31,16 @@ type BorrowUser struct {
 }
 
 type BorrowHistoryResponse struct {
-	ID        uint64      `json:"id"`
-	Type      uint64      `json:"type"`
-	Status    uint64      `json:"status"`
-	User      BorrowUser  `json:"user_data"`
-	Book      *model.Book `json:"book_data"`
-	CreatedAt time.Time   `json:"created_at"`
-	UpdatedAt time.Time   `json:"updated_at"`
-	ExpiredAt time.Time   `json:"expired_at"`
+	ID           uint64      `json:"id"`
+	Type         uint64      `json:"type"`
+	Status       uint64      `json:"status"`
+	User         BorrowUser  `json:"user_data"`
+	Book         *model.Book `json:"book_data"`
+	ExpiredDay   uint64      `json:"expired_day"`
+	PunishAmount uint64      `json:"punishment_amt"`
+	CreatedAt    time.Time   `json:"created_at"`
+	UpdatedAt    time.Time   `json:"updated_at"`
+	ExpiredAt    time.Time   `json:"expired_at"`
 }
 
 type BorrowHistoryList struct {
@@ -59,5 +61,3 @@ type ReqBookSummary struct {
 	StartDate string `json:"start_date" form:"start_date"`
 	EndDate   string `json:"end_date" form:"end_date"`
 }
-
-

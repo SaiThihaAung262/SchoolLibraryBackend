@@ -9,6 +9,7 @@ import (
 const (
 	BookBorrowingStatus = 1
 	BookReturnedStatus  = 2
+	BookExpireStatus    = 3
 
 	TeacherBorrow = 1
 	StudentBorrow = 2

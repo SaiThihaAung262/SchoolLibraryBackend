@@ -26,7 +26,7 @@ func NewPunishmentRepository(db *gorm.DB) PunishmentRepository {
 
 func (db *punishmentConnection) GetPunishmentData() ([]model.Punishment, error) {
 	var punishmentData []model.Punishment
-	sql := "select * from punishments where deleted_at IS NULL"
+	sql := "select * from punishments where deleted_at IS NULL ORDER BY duration ASC"
 	res := db.connection.Raw(sql).Scan(&punishmentData)
 	if res.Error != nil {
 		return nil, res.Error

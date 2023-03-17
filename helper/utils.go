@@ -22,3 +22,7 @@ func GenerateUUID() string {
 func AddSevenDay(myTime time.Time) time.Time {
 	return myTime.AddDate(0, 0, 7)
 }
+
+func CalculatExpireDate(myTime time.Time, addDay int) time.Time {
+	return myTime.AddDate(0, 0, addDay)
+}

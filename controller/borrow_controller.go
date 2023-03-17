@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"MyGO.com/m/dto"
 	"MyGO.com/m/helper"
@@ -28,6 +29,7 @@ type borrowController struct {
 	studentService      service.StudentService
 	borrowLogService    service.BorrowLogService
 	systemConfigService service.SystemConfigService
+	punishmentService   service.PunishmentService
 }
 
 func NewBorrowController(borrowService service.Borrowservice,
@@ -36,6 +38,8 @@ func NewBorrowController(borrowService service.Borrowservice,
 	studentService service.StudentService,
 	borrowLogService service.BorrowLogService,
 	systemConfigService service.SystemConfigService,
+	punishmentService service.PunishmentService,
+
 ) BorrowController {
 	return &borrowController{
 		borrowService:       borrowService,
@@ -44,6 +48,7 @@ func NewBorrowController(borrowService service.Borrowservice,
 		studentService:      studentService,
 		borrowLogService:    borrowLogService,
 		systemConfigService: systemConfigService,
+		punishmentService:   punishmentService,
 	}
 }
 
@@ -228,6 +233,15 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 		return
 	}
 
+	//*Get Config data
+	configData, errGetConfig := c.systemConfigService.GetSystemConfig()
+
+	if errGetConfig != nil {
+		response := helper.ResponseErrorData(500, errGetConfig.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
 	resultData, total, err := c.borrowService.GetBorrowHistory(reqDto)
 	if err != nil {
 		response := helper.ResponseErrorData(500, errDto.Error())
@@ -242,6 +256,7 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 
 	for _, item := range resultData {
 		responseData := dto.BorrowHistoryResponse{}
+
 		//*---------------Get Book Data to response---------------
 		book, errGetBook := c.bookService.GetBookByUUID(item.BookUUID)
 		if errGetBook != nil {
@@ -276,6 +291,9 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 				ctx.JSON(http.StatusOK, response)
 				return
 			}
+
+			responseData.ExpiredAt = helper.CalculatExpireDate(item.CreatedAt, int(configData.TeacherCanBorrowDay))
+
 		} else if item.Type == model.StudentBorrow {
 			student, errGetStudent := c.studentService.GetStudentByUUID(item.UserUUID)
 			if errGetStudent != nil {
@@ -295,6 +313,8 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 				ctx.JSON(http.StatusOK, response)
 				return
 			}
+
+			responseData.ExpiredAt = helper.CalculatExpireDate(item.CreatedAt, int(configData.StudentCanBorrowDay))
 		}
 
 		responseData.ID = item.ID
@@ -304,15 +324,77 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 		responseData.Book = book
 		responseData.CreatedAt = item.CreatedAt
 		responseData.UpdatedAt = item.UpdatedAt
-		responseData.ExpiredAt = helper.AddSevenDay(item.CreatedAt)
-
+		expiredDay, punishmentAmt := CalcExpireDayAndPunishAmt(c, ctx, responseData.ExpiredAt, responseData)
+		// responseData.ExpiredAt = helper.AddSevenDay(item.CreatedAt)
+		responseData.ExpiredDay = expiredDay
+		responseData.PunishAmount = punishmentAmt
 		responseList.List = append(responseList.List, responseData)
 
 	}
 
 	response := helper.ResponseData(0, "success", responseList)
 	ctx.JSON(http.StatusOK, response)
+}
 
+// *Caluclate Expire day and Punishment amount
+func CalcExpireDayAndPunishAmt(c borrowController, ctx *gin.Context, expireTime time.Time, data dto.BorrowHistoryResponse) (uint64, uint64) {
+	var expiredDay uint64
+	var punishmentAmt uint64
+
+	//Caluclate expire time from now
+	calcExpireTime := time.Since(expireTime)
+
+	expiredDay = uint64(calcExpireTime.Hours() / 24) // asssing value to Expired Day
+
+	fmt.Println("Here is Expired day ---------", expiredDay, data.User.UUID, data.Book.UUID)
+
+	//Get Punishment Data
+	punishmentLists, err := c.punishmentService.GetPunishmentData()
+
+	if err != nil {
+		response := helper.ResponseErrorData(500, err.Error())
+		ctx.JSON(http.StatusOK, response)
+		ctx.Abort()
+	}
+
+	for index, item := range punishmentLists {
+		// if index == 0 {
+		// 	if expiredDay > 0 && expiredDay < item.Duration {
+		// 		fmt.Println("here is in loop of day", expiredDay, data.Book.UUID)
+		// 		punishmentAmt = expiredDay * item.TeacherPunishAmount
+		// 		return expiredDay, punishmentAmt
+
+		// 	}
+		// } else {
+		// 	if expiredDay > punishmentLists[index-1].Duration && expiredDay < item.Duration {
+
+		// 		fmt.Println("here is in loop of not day", expiredDay, data.Book.UUID)
+
+		// 		expWeekOrMonth := expiredDay / item.Duration
+
+		// 		// punishmentAmt = expiredDay * item.TeacherPunishAmount
+		// 		punishmentAmt = expWeekOrMonth * item.TeacherPunishAmount
+
+		// 		fmt.Println("------Here is exp week or month----", expWeekOrMonth, item.Duration)
+
+		// 		return expiredDay, punishmentAmt
+		// 	}
+		// }
+
+		if expiredDay < item.Duration {
+			punishmentAmt = expiredDay * item.TeacherPunishAmount
+			fmt.Println("here is index", index)
+			return expiredDay, punishmentAmt
+		}
+		// if expiredDay > item.Duration && expiredDay < punishmentLists[index+1].Duration {
+		// 	expWeekOrMonth := expiredDay / item.Duration
+		// 	punishmentAmt = expWeekOrMonth * item.TeacherPunishAmount
+		// 	fmt.Println("here is index bla bla bla", index)
+		// 	return expiredDay, punishmentAmt
+		// }
+	}
+
+	return expiredDay, punishmentAmt
 }
 
 // * --------------Update Borrow Status-------------

@@ -65,7 +65,7 @@ var (
 	//Borrow
 	borrowRepo       repository.BorrowRepository = repository.NewBorrowRepository(db)
 	borrowService    service.Borrowservice       = service.NewBorrowService(borrowRepo)
-	borrowController controller.BorrowController = controller.NewBorrowController(borrowService, bookService, teacherService, studentService, borrowLogService, systemConfigService)
+	borrowController controller.BorrowController = controller.NewBorrowController(borrowService, bookService, teacherService, studentService, borrowLogService, systemConfigService, punishmentService)
 
 	//For clients
 	//Clent login
