@@ -62,10 +62,12 @@ func (db *punishmentConnection) UpdatePunishment(punishment model.Punishment) (*
 	err := db.connection.Model(&updatePunishment).Where("id = ?", punishment.ID).Select(
 		"package_name",
 		"duration",
-		"punishment_amt").Updates(model.Punishment{
-		PackageName:  punishment.PackageName,
-		Duration:     punishment.Duration,
-		PunishAmount: punishment.PunishAmount,
+		"teacher_punishment_amt",
+		"student_punishment_amt	").Updates(model.Punishment{
+		PackageName:         punishment.PackageName,
+		Duration:            punishment.Duration,
+		TeacherPunishAmount: punishment.TeacherPunishAmount,
+		StudentPunishAmount: punishment.StudentPunishAmount,
 	}).Error
 
 	if err != nil {
