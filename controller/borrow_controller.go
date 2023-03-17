@@ -22,11 +22,12 @@ type BorrowController interface {
 }
 
 type borrowController struct {
-	borrowService    service.Borrowservice
-	bookService      service.BookService
-	teacherService   service.TeacherService
-	studentService   service.StudentService
-	borrowLogService service.BorrowLogService
+	borrowService       service.Borrowservice
+	bookService         service.BookService
+	teacherService      service.TeacherService
+	studentService      service.StudentService
+	borrowLogService    service.BorrowLogService
+	systemConfigService service.SystemConfigService
 }
 
 func NewBorrowController(borrowService service.Borrowservice,
@@ -34,13 +35,15 @@ func NewBorrowController(borrowService service.Borrowservice,
 	teacherService service.TeacherService,
 	studentService service.StudentService,
 	borrowLogService service.BorrowLogService,
+	systemConfigService service.SystemConfigService,
 ) BorrowController {
 	return &borrowController{
-		borrowService:    borrowService,
-		bookService:      bookService,
-		teacherService:   teacherService,
-		studentService:   studentService,
-		borrowLogService: borrowLogService,
+		borrowService:       borrowService,
+		bookService:         bookService,
+		teacherService:      teacherService,
+		studentService:      studentService,
+		borrowLogService:    borrowLogService,
+		systemConfigService: systemConfigService,
 	}
 }
 
@@ -56,14 +59,15 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 
 	fmt.Println("HEre is book uuid >>>>>>>>", createDto.BookUUID)
 
-	isAlreadyBoorowThisBook := c.borrowService.IsAlreadyBorrowThisBook(createDto.UserUUID, createDto.BookUUID)
-	if isAlreadyBoorowThisBook {
-		response := helper.ResponseErrorData(888, "Already borrow this book!")
-		ctx.JSON(http.StatusOK, response)
-		return
-	}
+	//*Check user alreay borrow this book or not
+	// isAlreadyBoorowThisBook := c.borrowService.IsAlreadyBorrowThisBook(createDto.UserUUID, createDto.BookUUID)
+	// if isAlreadyBoorowThisBook {
+	// 	response := helper.ResponseErrorData(888, "Already borrow this book!")
+	// 	ctx.JSON(http.StatusOK, response)
+	// 	return
+	// }
 
-	//---------------Check is book exist---------------
+	//*---------------Check is book exist---------------
 	book, errGetBook := c.bookService.GetBookByUUID(createDto.BookUUID)
 	if errGetBook != nil {
 		if criteria.IsErrNotFound(errGetBook) {
@@ -88,10 +92,43 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 		return
 	}
 
+	//*Get User Borrowing book count
+	reqBorrowCountDto := &dto.BorrowHistoryRequest{
+		UserUUID: createDto.UserUUID,
+		Status:   model.BookBorrowingStatus,
+	}
+
+	_, borrowingCount, errGetBorrowingCount := c.borrowService.GetBorrowHistory(reqBorrowCountDto)
+	if errGetBorrowingCount != nil {
+		response := helper.ResponseErrorData(500, errGetBorrowingCount.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	fmt.Println("here is user borrowing book count >>>>>>>>>>>", borrowingCount)
+
+	//*Get Config data
+	configData, errGetConfig := c.systemConfigService.GetSystemConfig()
+
+	if errGetConfig != nil {
+		response := helper.ResponseErrorData(500, errGetConfig.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	//*---------------Check type for Teacher or student---------------
 	var userTeacher model.Teacher
 	var userStudent model.Student
-	//---------------Check type for Teacher or student---------------
 	if createDto.Type == model.TeacherBorrow {
+
+		//*Check can borrowcount is greather than or equal borrowing count
+		if uint64(borrowingCount) >= configData.TeacherCanBorrowCount {
+			response := helper.ResponseErrorData(500, "Borrowing Limit is Full!")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+
+		//*Get teacher by UUID
 		teacher, errGetTeacher := c.teacherService.GetTeacherByUUID(createDto.UserUUID)
 		if errGetTeacher != nil {
 			if criteria.IsErrNotFound(errGetTeacher) {
@@ -105,6 +142,15 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 		}
 		userTeacher = *teacher
 	} else if createDto.Type == model.StudentBorrow {
+
+		//*Check can borrowcount is greather than or equal borrowing count
+		if uint64(borrowingCount) >= configData.StudentCanBorrowCount {
+			response := helper.ResponseErrorData(500, "Borrowing limit is Full!")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+
+		//*Get student by UUID
 		student, errGetStudent := c.studentService.GetStudentByUUID(createDto.UserUUID)
 		if errGetStudent != nil {
 			if criteria.IsErrNotFound(errGetStudent) {
@@ -119,7 +165,7 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 		userStudent = *student
 	}
 
-	//---------------Create borrow---------------
+	//*---------------Create borrow---------------
 	err := c.borrowService.CreateBorrow(createDto)
 	if err != nil {
 		response := helper.ResponseErrorData(500, err.Error())
@@ -127,7 +173,7 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 		return
 	}
 
-	//---------------Create borrow logs---------------
+	//*---------------Create borrow logs---------------
 	var borrowLog model.BorrowLog
 	borrowLog.Type = createDto.Type
 	borrowLog.BookID = book.ID
@@ -155,7 +201,7 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 		return
 	}
 
-	//---------------Update qty of borrow---------------
+	//*---------------Update qty of borrow---------------
 	var bookToUpdate dto.UpdateBookDTO
 	bookToUpdate.ID = book.ID
 	bookToUpdate.AvailableQty = book.AvailableQty
@@ -171,7 +217,7 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-// --------------Get Borrow History-------------
+// *--------------Get Borrow History-------------
 func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 	reqDto := &dto.BorrowHistoryRequest{}
 	errDto := ctx.ShouldBind(&reqDto)
@@ -196,7 +242,7 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 
 	for _, item := range resultData {
 		responseData := dto.BorrowHistoryResponse{}
-		//---------------Get Book Data to response---------------
+		//*---------------Get Book Data to response---------------
 		book, errGetBook := c.bookService.GetBookByUUID(item.BookUUID)
 		if errGetBook != nil {
 			if criteria.IsErrNotFound(errGetBook) {
@@ -209,7 +255,7 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 			return
 		}
 
-		//---------------Get User Data to response---------------
+		//*---------------Get User Data to response---------------
 		var borrowUser dto.BorrowUser
 		if item.Type == model.TeacherBorrow {
 			teacher, errGetTeacher := c.teacherService.GetTeacherByUUID(item.UserUUID)
@@ -269,7 +315,7 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 
 }
 
-// --------------Update Borrow Status-------------
+// * --------------Update Borrow Status-------------
 func (c borrowController) UpdateBorrowStatus(ctx *gin.Context) {
 	var updateDto dto.UpdateBorrowStatusDTO
 	errDTO := ctx.ShouldBind(&updateDto)
@@ -293,7 +339,7 @@ func (c borrowController) UpdateBorrowStatus(ctx *gin.Context) {
 
 	fmt.Println("Here is res . book >>>>>>>>>>>>>>>>>>>>>>>", res.BookUUID)
 
-	// Check is book exist
+	// *Check is book exist
 	book, errGetBook := c.bookService.GetBookByUUID(res.BookUUID)
 	if errGetBook != nil {
 		if criteria.IsErrNotFound(errGetBook) {
@@ -306,7 +352,7 @@ func (c borrowController) UpdateBorrowStatus(ctx *gin.Context) {
 		return
 	}
 
-	//Update qty of borrow
+	//*Update qty of borrow
 	var bookToUpdate dto.UpdateBookDTO
 	bookToUpdate.ID = book.ID
 	bookToUpdate.AvailableQty = book.AvailableQty
@@ -325,7 +371,7 @@ func (c borrowController) UpdateBorrowStatus(ctx *gin.Context) {
 
 }
 
-// --------------Get Book Summary-------------
+// *--------------Get Book Summary-------------
 func (c borrowController) GetBookSummaryData(ctx *gin.Context) {
 	reqSummaryDto := &dto.ReqBookSummary{}
 	errReqSummaryDto := ctx.ShouldBind(&reqSummaryDto)
@@ -338,20 +384,20 @@ func (c borrowController) GetBookSummaryData(ctx *gin.Context) {
 
 	reqBookDto := &dto.BookGetRequest{}
 
-	//----------Bind Book req dto with req Summary dto----------
+	//*----------Bind Book req dto with req Summary dto----------
 	err := smapping.FillStruct(&reqBookDto, smapping.MapFields(&reqSummaryDto))
 	if err != nil {
 		fmt.Println("------Have error in Get Book By Summary 11111 ------", err.Error())
 	}
 
-	//----------Request Summary Data dto----------
+	//*----------Request Summary Data dto----------
 	reqSummaryDataDto := &dto.ReqBorrowCountByBookUUIDAndDateDto{}
 	errReqSummaryDataDto := smapping.FillStruct(&reqSummaryDataDto, smapping.MapFields(&reqSummaryDto))
 	if errReqSummaryDataDto != nil {
 		fmt.Println("------Have error in Get Book By Summary 22222 ------", err.Error())
 	}
 
-	//Get all books
+	//*Get all books
 	resultData, count, err := c.bookService.GetAllBooks(reqBookDto)
 
 	if err != nil {
@@ -390,7 +436,7 @@ func (c borrowController) GetBookSummaryData(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-// --------------Get Book by UUID-------------
+// *--------------Get Book by UUID-------------
 func (c borrowController) GetBookByUUID(ctx *gin.Context) {
 	var dtoBook dto.GetBookByUUIDDto
 	errDto := ctx.ShouldBind(&dtoBook)

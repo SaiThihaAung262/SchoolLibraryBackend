@@ -52,11 +52,6 @@ var (
 	borrowLogRepo    repository.BorrowLogRepository = repository.NewBorrowlogRepository(db)
 	borrowLogService service.BorrowLogService       = service.NewBorrowLogService(borrowLogRepo)
 
-	//Borrow
-	borrowRepo       repository.BorrowRepository = repository.NewBorrowRepository(db)
-	borrowService    service.Borrowservice       = service.NewBorrowService(borrowRepo)
-	borrowController controller.BorrowController = controller.NewBorrowController(borrowService, bookService, teacherService, studentService, borrowLogService)
-
 	//Punishment
 	punishmentRepo       repository.PunishmentRepository = repository.NewPunishmentRepository(db)
 	punishmentService    service.PunishmentService       = service.NewPunishmentService(punishmentRepo)
@@ -66,6 +61,11 @@ var (
 	systemConfigRepo       repository.SystemConfigRepository = repository.NewSystemConfigRepo(db)
 	systemConfigService    service.SystemConfigService       = service.NewSystemConfigService(systemConfigRepo)
 	systemConfigController controller.SystemConfigController = controller.NewSystemConfigController(systemConfigService)
+
+	//Borrow
+	borrowRepo       repository.BorrowRepository = repository.NewBorrowRepository(db)
+	borrowService    service.Borrowservice       = service.NewBorrowService(borrowRepo)
+	borrowController controller.BorrowController = controller.NewBorrowController(borrowService, bookService, teacherService, studentService, borrowLogService, systemConfigService)
 
 	//For clients
 	//Clent login
