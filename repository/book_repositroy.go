@@ -204,13 +204,4 @@ func (db *bookConnection) GetBookByUUIDAndDate(req *dto.ReqBorrowCountByBookUUID
 	}
 	return &book, nil
 
-	// book := &model.Book{}
-	// myDb := db.connection.Model(&model.Book{})
-	// myDb = myDb.Where("uuid = ?", req.BookUUID)
-	// myDb = myDb.Where("created_at BETWEEN ? AND ?", req.StartDate, req.EndDate).Find(&book)
-
-	// if err := myDb.First(&book).Error; err != nil {
-	// 	return nil, err
-	// }
-	// return book, nil
 }
