@@ -8,6 +8,8 @@ type CreateBookDTO struct {
 	Summary      string `json:"summary" from:"summary" binding:"required"`
 	BookImage    string `json:"book_image" form:"book_image"`
 	AvailableQty uint64 `json:"available_qty" form:"available_qty" binding:"required"`
+	PublishDate  string `json:"publish_date" form:"publish_date"`
+	DownloadLink string `json:"download_link" form:"download_link"`
 }
 
 type BookGetRequest struct {
@@ -30,6 +32,8 @@ type UpdateBookDTO struct {
 	BookImage    string `json:"book_image" form:"book_image"`
 	AvailableQty uint64 `json:"available_qty" form:"available_qty"`
 	BorrowQty    uint64 `json:"borrow_qty" form:"borrow_qty"`
+	PublishDate  string `json:"publish_date" form:"publish_date"`
+	DownloadLink string `json:"download_link" form:"download_link"`
 }
 
 type GetBookByUUIDDto struct {

@@ -127,6 +127,8 @@ func (db *bookConnection) UpdateBook(book model.Book) (*model.Book, error) {
 		// Status:       book.Status,
 		Status:       status,
 		BookImage:    book.BookImage,
+		PublishDate:  book.PublishDate,
+		DownloadLink: book.DownloadLink,
 		AvailableQty: book.AvailableQty,
 		BorrowQty:    book.BorrowQty,
 	}).Error
