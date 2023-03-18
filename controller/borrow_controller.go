@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -20,6 +19,7 @@ type BorrowController interface {
 	UpdateBorrowStatus(ctx *gin.Context)
 	GetBookSummaryData(ctx *gin.Context)
 	GetBookByUUID(ctx *gin.Context)
+	ReBorrow(ctx *gin.Context)
 }
 
 type borrowController struct {
@@ -61,8 +61,6 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
-
-	fmt.Println("HEre is book uuid >>>>>>>>", createDto.BookUUID)
 
 	//*Check user alreay borrow this book or not
 	// isAlreadyBoorowThisBook := c.borrowService.IsAlreadyBorrowThisBook(createDto.UserUUID, createDto.BookUUID)
@@ -108,8 +106,6 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
-
-	fmt.Println("here is user borrowing book count >>>>>>>>>>>", borrowingCount)
 
 	//*Get Config data
 	configData, errGetConfig := c.systemConfigService.GetSystemConfig()
@@ -227,7 +223,6 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 	reqDto := &dto.BorrowHistoryRequest{}
 	errDto := ctx.ShouldBind(&reqDto)
 	if errDto != nil {
-		fmt.Println("here have error <>>>>>>>>>>>>>>>")
 		response := helper.ResponseErrorData(500, errDto.Error())
 		ctx.JSON(http.StatusOK, response)
 		return
@@ -248,8 +243,6 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
-
-	fmt.Println("----- here is total count ----", total)
 
 	var responseList dto.BorrowHistoryList
 	responseList.Total = total
@@ -325,7 +318,6 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 		responseData.CreatedAt = item.CreatedAt
 		responseData.UpdatedAt = item.UpdatedAt
 		expiredDay, punishmentAmt := CalcExpireDayAndPunishAmt(c, ctx, responseData.ExpiredAt, responseData)
-		// responseData.ExpiredAt = helper.AddSevenDay(item.CreatedAt)
 		responseData.ExpiredDay = expiredDay
 		responseData.PunishAmount = punishmentAmt
 		responseList.List = append(responseList.List, responseData)
@@ -341,12 +333,12 @@ func CalcExpireDayAndPunishAmt(c borrowController, ctx *gin.Context, expireTime 
 	var expiredDay uint64
 	var punishmentAmt uint64
 
-	//Caluclate expire time from now
+	//*---------Caluclate expire time from now---------
 	calcExpireTime := time.Since(expireTime)
 
 	expiredDay = uint64(calcExpireTime.Hours() / 24) // asssing value to Expired Day
 
-	//Get Punishment Data
+	//*---------Get Punishment Data and calculate punishment amount---------
 	punishmentLists, err := c.punishmentService.GetPunishmentData()
 
 	if err != nil {
@@ -367,7 +359,6 @@ func CalcExpireDayAndPunishAmt(c borrowController, ctx *gin.Context, expireTime 
 		if expiredDay > item.DurationEnd {
 			var expiredDayOrWeekOryear uint64
 			myRemainDay := expiredDay % item.DurationEnd
-			// fmt.Println("---------borrow id and remainer ----", data.ID, myRemainDay)
 			if myRemainDay > 0 {
 				expiredDayOrWeekOryear = (expiredDay / item.DurationEnd) + 1
 			} else {
@@ -380,12 +371,12 @@ func CalcExpireDayAndPunishAmt(c borrowController, ctx *gin.Context, expireTime 
 				punishmentAmt = expiredDayOrWeekOryear * item.StudentPunishAmount
 
 			}
-			// fmt.Println("expiredDayOrWeekOryear and  amount 22222", expiredDayOrWeekOryear, item.TeacherPunishAmount)
+
 		}
 
 	}
 
-	//check borrow status and expired days to Update borrow status to expired
+	//*---------check borrow status and expired days to Update borrow status to expired---------
 	if data.Status == 1 && expiredDay > 0 {
 		updatStatusDto := dto.UpdateBorrowStatusDTO{
 			ID:       data.ID,
@@ -432,8 +423,6 @@ func (c borrowController) UpdateBorrowStatus(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Println("Here is res . book >>>>>>>>>>>>>>>>>>>>>>>", res.BookUUID)
-
 	// *Check is book exist
 	book, errGetBook := c.bookService.GetBookByUUID(res.BookUUID)
 	if errGetBook != nil {
@@ -453,7 +442,7 @@ func (c borrowController) UpdateBorrowStatus(ctx *gin.Context) {
 	bookToUpdate.AvailableQty = book.AvailableQty
 	bookToUpdate.BorrowQty = book.BorrowQty - 1
 	// _, errUpdateBook := c.bookService.UpdateBook(bookToUpdate)
-	errUpdateBook := c.bookService.UpdateBookBorrowQTY(bookToUpdate.ID, bookToUpdate.BorrowQty)
+	errUpdateBook := c.bookService.UpdateBookBorrowQTY(bookToUpdate.ID, bookToUpdate.AvailableQty, bookToUpdate.BorrowQty)
 
 	if errUpdateBook != nil {
 		response := helper.ResponseErrorData(500, errUpdateBook.Error())
@@ -471,7 +460,6 @@ func (c borrowController) GetBookSummaryData(ctx *gin.Context) {
 	reqSummaryDto := &dto.ReqBookSummary{}
 	errReqSummaryDto := ctx.ShouldBind(&reqSummaryDto)
 	if errReqSummaryDto != nil {
-		fmt.Println("here have error <>>>>>>>>>>>>>>>")
 		response := helper.ResponseErrorData(500, errReqSummaryDto.Error())
 		ctx.JSON(http.StatusOK, response)
 		return
@@ -482,14 +470,12 @@ func (c borrowController) GetBookSummaryData(ctx *gin.Context) {
 	//*----------Bind Book req dto with req Summary dto----------
 	err := smapping.FillStruct(&reqBookDto, smapping.MapFields(&reqSummaryDto))
 	if err != nil {
-		fmt.Println("------Have error in Get Book By Summary 11111 ------", err.Error())
 	}
 
 	//*----------Request Summary Data dto----------
 	reqSummaryDataDto := &dto.ReqBorrowCountByBookUUIDAndDateDto{}
 	errReqSummaryDataDto := smapping.FillStruct(&reqSummaryDataDto, smapping.MapFields(&reqSummaryDto))
 	if errReqSummaryDataDto != nil {
-		fmt.Println("------Have error in Get Book By Summary 22222 ------", err.Error())
 	}
 
 	//*Get all books
@@ -507,7 +493,6 @@ func (c borrowController) GetBookSummaryData(ctx *gin.Context) {
 	bookSummaryDataList.Total = uint64(count)
 
 	for _, item := range resultData {
-		// fmt.Println(item.AvailableQty)
 		reqSummaryDataDto.BookUUID = item.UUID
 		bookSummaryData.BookDetail = item
 
@@ -570,4 +555,38 @@ func (c borrowController) GetBookByUUID(ctx *gin.Context) {
 
 	response := helper.ResponseData(0, "success", responseData)
 	ctx.JSON(http.StatusOK, response)
+}
+
+func (c borrowController) ReBorrow(ctx *gin.Context) {
+	// var updateDto dto.UpdateBorrowStatusDTO
+	// errDTO := ctx.ShouldBind(&updateDto)
+	// if errDTO != nil {
+	// 	response := helper.ResponseErrorData(500, errDTO.Error())
+	// 	ctx.JSON(http.StatusOK, response)
+	// 	return
+	// }
+
+	// _, err := c.borrowService.UpdateBorrowStatus(updateDto)
+	// if err != nil {
+	// 	if criteria.IsErrNotFound(err) {
+	// 		response := helper.ResponseErrorData(500, "Cannot find")
+	// 		ctx.JSON(http.StatusOK, response)
+	// 		return
+	// 	}
+	// 	response := helper.ResponseErrorData(500, err.Error())
+	// 	ctx.JSON(http.StatusOK, response)
+	// 	return
+	// }
+
+	// c.UpdateBorrowStatus(ctx)
+	c.CreateBorrow(ctx)
+	// c.UpdateBorrowStatus(ctx)
+
+	// var createDto dto.CreateBorrowDTO
+	// errDto := ctx.ShouldBind(&createDto)
+	// if errDto != nil {
+	// 	response := helper.ResponseErrorData(500, errDto.Error())
+	// 	ctx.JSON(http.StatusOK, response)
+	// 	return
+	// }
 }
