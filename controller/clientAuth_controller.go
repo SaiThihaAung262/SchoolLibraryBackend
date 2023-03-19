@@ -20,15 +20,19 @@ type ClientAuthController interface {
 type clientAuthController struct {
 	studentService service.StudentService
 	teacherService service.TeacherService
+	staffService   service.StaffService
 	jwtService     service.JwtService
 }
 
-func NewClientAuthController(studentService service.StudentService,
+func NewClientAuthController(
+	studentService service.StudentService,
 	teacherService service.TeacherService,
+	staffService service.StaffService,
 	jwtService service.JwtService) ClientAuthController {
 	return &clientAuthController{
 		studentService: studentService,
 		teacherService: teacherService,
+		staffService:   staffService,
 		jwtService:     jwtService,
 	}
 
@@ -73,6 +77,23 @@ func (c *clientAuthController) ClientLogin(ctx *gin.Context) {
 		loginResult := c.studentService.VerifyLogin(loginDTO.Email, loginDTO.Password)
 
 		if v, ok := loginResult.(model.Student); ok {
+			generateToken := c.jwtService.GenerateToken(strconv.FormatUint(v.ID, 10))
+			// v.Token =
+			responseData := ClientLoginResponse{
+				Name:     v.Name,
+				UserType: loginDTO.Type,
+				Token:    generateToken,
+				UUID:     v.UUID,
+			}
+
+			response := helper.ResponseData(0, "Login successfull", responseData)
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+	} else if loginDTO.Type == model.StaffLoginType {
+		loginResult := c.staffService.VerifyLogin(loginDTO.Email, loginDTO.Password)
+
+		if v, ok := loginResult.(model.Staff); ok {
 			generateToken := c.jwtService.GenerateToken(strconv.FormatUint(v.ID, 10))
 			// v.Token =
 			responseData := ClientLoginResponse{

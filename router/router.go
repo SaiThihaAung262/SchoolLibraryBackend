@@ -74,7 +74,7 @@ var (
 
 	//For clients
 	//Clent login
-	clientAuthController controller.ClientAuthController = controller.NewClientAuthController(studentService, teacherService, jwtService)
+	clientAuthController controller.ClientAuthController = controller.NewClientAuthController(studentService, teacherService, staffService, jwtService)
 )
 
 func InitRoute() {
