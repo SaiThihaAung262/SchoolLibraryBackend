@@ -6,6 +6,7 @@ type CreatePunishmentDto struct {
 	DurationEnd         uint64 `json:"duration_end" form:"duration_end" binding:"required"`
 	TeacherPunishAmount uint64 `json:"teacher_punishment_amt" form:"teacher_punishment_amt" binding:"required"`
 	StudentPunishAmount uint64 `json:"student_punishment_amt" form:"student_punishment_amt" binding:"required"`
+	StaffPunishAmount   uint64 `json:"staff_punishment_amt" form:"staff_punishment_amt" binding:"required"`
 }
 
 type UpdatePunishmentDto struct {
@@ -15,4 +16,5 @@ type UpdatePunishmentDto struct {
 	DurationEnd         uint64 `json:"duration_end" form:"duration_end" binding:"required"`
 	TeacherPunishAmount uint64 `json:"teacher_punishment_amt" form:"teacher_punishment_amt"`
 	StudentPunishAmount uint64 `json:"student_punishment_amt" form:"student_punishment_amt"`
+	StaffPunishAmount   uint64 `json:"staff_punishment_amt" form:"staff_punishment_amt"`
 }
