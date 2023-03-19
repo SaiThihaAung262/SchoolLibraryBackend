@@ -125,7 +125,7 @@ func (c clientAuthController) GetClientByUUID(ctx *gin.Context) {
 	var responseData helper.ResponseUserData
 	responseData.Type = getDto.Type
 
-	if getDto.Type == 1 {
+	if getDto.Type == model.TeacherLoginType {
 		teacher, errGetTeacher := c.teacherService.GetTeacherByUUID(getDto.UUID)
 		if errGetTeacher != nil {
 			if criteria.IsErrNotFound(errGetTeacher) {
@@ -139,7 +139,7 @@ func (c clientAuthController) GetClientByUUID(ctx *gin.Context) {
 		}
 		responseData.UserData = teacher
 
-	} else {
+	} else if getDto.Type == model.StudentLoginType {
 		student, errGetStudent := c.studentService.GetStudentByUUID(getDto.UUID)
 		if errGetStudent != nil {
 			if criteria.IsErrNotFound(errGetStudent) {
@@ -153,6 +153,19 @@ func (c clientAuthController) GetClientByUUID(ctx *gin.Context) {
 		}
 		responseData.UserData = student
 
+	} else if getDto.Type == model.StaffBorrow {
+		staff, errGetStudent := c.staffService.GetStaffByUUID(getDto.UUID)
+		if errGetStudent != nil {
+			if criteria.IsErrNotFound(errGetStudent) {
+				response := helper.ResponseErrorData(500, "Cannot find student")
+				ctx.JSON(http.StatusOK, response)
+				return
+			}
+			response := helper.ResponseErrorData(500, errGetStudent.Error())
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+		responseData.UserData = staff
 	}
 
 	respnse := helper.ResponseData(0, "success", responseData)

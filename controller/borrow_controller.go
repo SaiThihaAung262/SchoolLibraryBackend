@@ -27,6 +27,7 @@ type borrowController struct {
 	bookService         service.BookService
 	teacherService      service.TeacherService
 	studentService      service.StudentService
+	staffService        service.StaffService
 	borrowLogService    service.BorrowLogService
 	systemConfigService service.SystemConfigService
 	punishmentService   service.PunishmentService
@@ -36,6 +37,7 @@ func NewBorrowController(borrowService service.Borrowservice,
 	bookService service.BookService,
 	teacherService service.TeacherService,
 	studentService service.StudentService,
+	staffService service.StaffService,
 	borrowLogService service.BorrowLogService,
 	systemConfigService service.SystemConfigService,
 	punishmentService service.PunishmentService,
@@ -46,6 +48,7 @@ func NewBorrowController(borrowService service.Borrowservice,
 		bookService:         bookService,
 		teacherService:      teacherService,
 		studentService:      studentService,
+		staffService:        staffService,
 		borrowLogService:    borrowLogService,
 		systemConfigService: systemConfigService,
 		punishmentService:   punishmentService,
@@ -119,6 +122,7 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 	//*---------------Check type for Teacher or student---------------
 	var userTeacher model.Teacher
 	var userStudent model.Student
+	var userStaff model.Staff
 	if createDto.Type == model.TeacherBorrow {
 
 		//*Check can borrowcount is greather than or equal borrowing count
@@ -163,6 +167,28 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 			return
 		}
 		userStudent = *student
+	} else if createDto.Type == model.StaffBorrow {
+
+		//*Check can borrowcount is greather than or equal borrowing count
+		if uint64(borrowingCount) >= configData.StudentCanBorrowCount {
+			response := helper.ResponseErrorData(500, "Borrowing limit is Full!")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+
+		//*Get student by UUID
+		staff, errGetStaff := c.staffService.GetStaffByUUID(createDto.UserUUID)
+		if errGetStaff != nil {
+			if criteria.IsErrNotFound(errGetStaff) {
+				response := helper.ResponseErrorData(500, "Cannot find student")
+				ctx.JSON(http.StatusOK, response)
+				return
+			}
+			response := helper.ResponseErrorData(500, errGetStaff.Error())
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+		userStaff = *staff
 	}
 
 	//*---------------Create borrow---------------
@@ -193,6 +219,11 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 		borrowLog.UserName = userStudent.Name
 		borrowLog.RoleNo = userStudent.RoleNo
 		borrowLog.Year = userStudent.Year
+	} else if createDto.Type == model.StaffBorrow {
+		borrowLog.UserID = userStaff.ID
+		borrowLog.UserUUID = userStaff.UUID
+		borrowLog.UserName = userStaff.Name
+		borrowLog.Department = userStaff.Department
 	}
 
 	errCreateLog := c.borrowLogService.CreateBorrowLog(borrowLog)
@@ -558,35 +589,5 @@ func (c borrowController) GetBookByUUID(ctx *gin.Context) {
 }
 
 func (c borrowController) ReBorrow(ctx *gin.Context) {
-	// var updateDto dto.UpdateBorrowStatusDTO
-	// errDTO := ctx.ShouldBind(&updateDto)
-	// if errDTO != nil {
-	// 	response := helper.ResponseErrorData(500, errDTO.Error())
-	// 	ctx.JSON(http.StatusOK, response)
-	// 	return
-	// }
-
-	// _, err := c.borrowService.UpdateBorrowStatus(updateDto)
-	// if err != nil {
-	// 	if criteria.IsErrNotFound(err) {
-	// 		response := helper.ResponseErrorData(500, "Cannot find")
-	// 		ctx.JSON(http.StatusOK, response)
-	// 		return
-	// 	}
-	// 	response := helper.ResponseErrorData(500, err.Error())
-	// 	ctx.JSON(http.StatusOK, response)
-	// 	return
-	// }
-
-	// c.UpdateBorrowStatus(ctx)
 	c.CreateBorrow(ctx)
-	// c.UpdateBorrowStatus(ctx)
-
-	// var createDto dto.CreateBorrowDTO
-	// errDto := ctx.ShouldBind(&createDto)
-	// if errDto != nil {
-	// 	response := helper.ResponseErrorData(500, errDto.Error())
-	// 	ctx.JSON(http.StatusOK, response)
-	// 	return
-	// }
 }
