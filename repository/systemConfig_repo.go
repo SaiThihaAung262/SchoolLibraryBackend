@@ -56,17 +56,21 @@ func (db *systemConfigConnection) UpdateSystemConfig(systemConfig model.SystemCo
 
 	err := db.connection.Model(&updateSystemConfig).Where("id = ?", systemConfig.ID).Select("teacher_can_borrow_count",
 		"student_can_borrow_count",
+		"staff_can_borrow_count",
 		"teacher_punishment_amt",
 		"student_punishment_amt",
 		"teacher_can_borrow_day",
-		"student_can_borrow_day").Updates(model.SystemConfig{
+		"student_can_borrow_day",
+		"staff_can_borrow_day").Updates(model.SystemConfig{
 
 		TeacherCanBorrowCount: systemConfig.TeacherCanBorrowCount,
 		StudentCanBorrowCount: systemConfig.StudentCanBorrowCount,
+		StaffCanBorrowCount:   systemConfig.StaffCanBorrowCount,
 		TeacherPunishAmt:      systemConfig.TeacherPunishAmt,
 		StudentPunishAmt:      systemConfig.StudentPunishAmt,
 		TeacherCanBorrowDay:   systemConfig.TeacherCanBorrowDay,
 		StudentCanBorrowDay:   systemConfig.StudentCanBorrowDay,
+		StaffCanBorrowDay:     systemConfig.StaffCanBorrowDay,
 	}).Error
 
 	if err != nil {

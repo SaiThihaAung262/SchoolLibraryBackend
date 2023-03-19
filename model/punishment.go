@@ -13,6 +13,7 @@ type Punishment struct {
 	DurationEnd         uint64         `gorm:"column:duration_end;" json:"duration_end"`
 	TeacherPunishAmount uint64         `gorm:"column:teacher_punishment_amt;not null" json:"teacher_punishment_amt"`
 	StudentPunishAmount uint64         `gorm:"column:student_punishment_amt;not null" json:"student_punishment_amt"`
+	StaffPunishAmount   uint64         `gorm:"column:staff_punishment_amt;not null" json:"staff_punishment_amt"`
 	CreatedAt           time.Time      `gorm:"column:created_at" json:"created_at"`
 	UpdatedAt           time.Time      `gorm:"column:updated_at" json:"updated_at"`
 	DeletedAt           gorm.DeletedAt `json:"-"`
