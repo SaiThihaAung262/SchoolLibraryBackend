@@ -33,6 +33,11 @@ var (
 	teacherService    service.TeacherService       = service.NewTeacherService(teacherRepository)
 	teacherController controller.TeacherController = controller.NewTeacherController(teacherService, jwtService)
 
+	//Staff
+	staffRepository repository.StaffRepository = repository.NeweStaffRepository(db)
+	staffService    service.StaffService       = service.NewStaffService(staffRepository)
+	staffController controller.StaffController = controller.NewStaffController(staffService, jwtService)
+
 	//BookCategory
 	bookCategoryRepository repository.BookCategoryRepository = repository.NewBookCategoryRepository(db)
 	bookCategoryService    service.BookCategoryService       = service.NewBookCategoryService(bookCategoryRepository)
@@ -110,7 +115,7 @@ func InitRoute() {
 
 	}
 
-	//Students end points
+	//Teachers end points
 	teacherRoutes := apiRoutes.Group("teacher")
 	// teacherRoutes.Use(middleware.AuthorizeJWT(jwtService))
 	{
@@ -118,6 +123,17 @@ func InitRoute() {
 		teacherRoutes.GET("/get-teachers", teacherController.GetAllTeachers)
 		teacherRoutes.POST("/update", teacherController.UpdateTeacher)
 		teacherRoutes.POST("/delete", teacherController.DeleteTeacher)
+
+	}
+
+	//Teachers end points
+	staffRoutes := apiRoutes.Group("staff")
+	// staffRoutes.Use(middleware.AuthorizeJWT(jwtService))
+	{
+		staffRoutes.POST("/create", staffController.CreateStaff)
+		staffRoutes.GET("/get-staffs", staffController.GetAllStaff)
+		staffRoutes.POST("/update", staffController.UpdateStaff)
+		staffRoutes.POST("/delete", staffController.DeleteStaff)
 
 	}
 

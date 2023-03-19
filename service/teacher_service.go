@@ -13,7 +13,7 @@ import (
 type TeacherService interface {
 	InsertTeacher(teacher dto.TeacherRegisterDTO) (*model.Teacher, error)
 	GetAllTeachers(req *dto.TeacherGetRequest) ([]model.Teacher, int64, error)
-	UpdateTeacher(client dto.UpdateTeacherDTO) (*model.Teacher, error)
+	UpdateTeacher(teacher dto.UpdateTeacherDTO) (*model.Teacher, error)
 	DeleteTeacher(id uint64) error
 	GetTeacherByUUID(uuid string) (*model.Teacher, error)
 	VerifyLogin(name string, password string) interface{}

@@ -13,6 +13,7 @@ const (
 
 	TeacherBorrow = 1
 	StudentBorrow = 2
+	StaffBorrow   = 3
 )
 
 type Borrow struct {
