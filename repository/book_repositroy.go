@@ -70,7 +70,7 @@ func (db *bookConnection) GetAllBooks(req *dto.BookGetRequest) ([]model.Book, in
 	}
 
 	if req.SubCategorID != 0 {
-		filter += fmt.Sprintf(" and category_id = %d", req.SubCategorID)
+		filter += fmt.Sprintf(" and sub_category_id = %d", req.SubCategorID)
 
 	}
 
@@ -79,8 +79,13 @@ func (db *bookConnection) GetAllBooks(req *dto.BookGetRequest) ([]model.Book, in
 
 	}
 
+	if req.Author != "" {
+		filter += fmt.Sprintf(" and author LIKE \"%s%s%s\"", "%", req.Author, "%")
+	}
+
 	if req.Title != "" {
-		filter += fmt.Sprintf(" and title = %s", req.Title)
+		// filter += fmt.Sprintf(" and title = %s", req.Title)
+		filter += fmt.Sprintf(" and title LIKE \"%s%s%s\"", "%", req.Title, "%")
 
 	}
 

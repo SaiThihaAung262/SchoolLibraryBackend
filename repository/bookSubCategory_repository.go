@@ -70,7 +70,7 @@ func (db *bookSubCategoryConnection) GetAllBookSubCategory(req *dto.BookSubCateg
 	}
 
 	if req.SubCategoryName != "" {
-		filter += fmt.Sprintf(" and title LIKE \"%s%s%s\"", "%", req.SubCategoryName, "%")
+		filter += fmt.Sprintf(" and sub_category_name LIKE \"%s%s%s\"", "%", req.SubCategoryName, "%")
 	}
 
 	sql := fmt.Sprintf("select * from book_sub_categories %s order by created_at desc limit %v offset %v", filter, pageSize, offset)

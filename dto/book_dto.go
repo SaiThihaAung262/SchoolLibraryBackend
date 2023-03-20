@@ -18,6 +18,7 @@ type BookGetRequest struct {
 	Title        string `json:"title" form:"title"`
 	SubCategorID uint64 `json:"sub_category_id" form:"category_id"`
 	Status       uint64 `json:"status" form:"status"`
+	Author       string `json:"author" form:"author"`
 	Page         uint64 `json:"page" form:"page"`
 	PageSize     uint64 `json:"page_size" form:"page_size"`
 }
