@@ -69,9 +69,8 @@ func (db *bookCategoryConnection) GetAllBookCategory(req *dto.BookCategoryGetReq
 		filter += fmt.Sprintf(" and id = %d", req.ID)
 	}
 
-	if req.Title != "" {
-		// filter += fmt.Sprintf(" and title = %s", req.Title)
-		filter += fmt.Sprintf(" and title LIKE \"%s%s%s\"", "%", req.Title, "%")
+	if req.CategoryName != "" {
+		filter += fmt.Sprintf(" and category_name LIKE \"%s%s%s\"", "%", req.CategoryName, "%")
 	}
 
 	sql := fmt.Sprintf("select * from book_categories %s order by created_at desc limit %v offset %v", filter, pageSize, offset)
@@ -91,8 +90,8 @@ func (db *bookCategoryConnection) GetAllBookCategory(req *dto.BookCategoryGetReq
 
 func (db *bookCategoryConnection) UpdateBookCategory(category model.BookCategory) (*model.BookCategory, error) {
 	err := db.connection.Model(&category).Where("id = ?", category.ID).Updates(model.BookCategory{
-		Title:       category.Title,
-		Description: category.Description,
+		CategoryName: category.CategoryName,
+		// Description: category.Description,
 	}).Error
 	if err != nil {
 		fmt.Println("Error at update book category repository----")

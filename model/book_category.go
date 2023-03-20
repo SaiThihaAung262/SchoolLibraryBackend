@@ -7,10 +7,9 @@ import (
 )
 
 type BookCategory struct {
-	ID          uint64 `gorm:"primary_key:auto_increment" json:"id"`
-	Title       string `gorm:"unique;not null" json:"title"`
-	Description string `grom:"type:varchar(255)" json:"desc"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	DeletedAt   gorm.DeletedAt `json:"-"`
+	ID           uint64 `gorm:"primary_key:auto_increment" json:"id"`
+	CategoryName string `gorm:"unique;not null" json:"category_name"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	DeletedAt    gorm.DeletedAt `json:"-"`
 }

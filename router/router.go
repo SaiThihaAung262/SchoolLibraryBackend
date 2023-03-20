@@ -42,6 +42,11 @@ var (
 	bookCategoryService    service.BookCategoryService       = service.NewBookCategoryService(bookCategoryRepository)
 	bookCategoryController controller.BookCategoryController = controller.NewBookCategoryControlle(bookCategoryService)
 
+	//BookSubCategory
+	bookSubCategoryRepository repository.BookSubCategoryRepository = repository.NewBookSubCategoryRepository(db)
+	bookSubCategoryService    service.BookSubCategoryService       = service.NewBookSubCategoryService(bookSubCategoryRepository)
+	bookSubCategoryController controller.BookSubCategoryController = controller.NewBookSubCategoryControlle(bookSubCategoryService)
+
 	//Book
 	bookRepository repository.BookRepository = repository.NewBookRepository(db)
 	bookService    service.BookService       = service.NewBookService(bookRepository)
@@ -144,6 +149,16 @@ func InitRoute() {
 		bookCategoryRoutes.GET("/get-categories", bookCategoryController.GetAllBookCategory)
 		bookCategoryRoutes.POST("/update", bookCategoryController.UpdateBookCategory)
 		bookCategoryRoutes.POST("/delete", bookCategoryController.DeleteBookCategory)
+	}
+
+	//Book sub Category end points
+	bookSubCategoryRoutes := apiRoutes.Group("book-sub-category")
+	// bookCategoryRoutes.Use(middleware.AuthorizeJWT(jwtService))
+	{
+		bookSubCategoryRoutes.POST("/create", bookSubCategoryController.CreateBookSubCategory)
+		bookSubCategoryRoutes.GET("/get-categories", bookSubCategoryController.GetAllBookSubCategory)
+		bookSubCategoryRoutes.POST("/update", bookSubCategoryController.UpdateBookSubCategory)
+		bookSubCategoryRoutes.POST("/delete", bookSubCategoryController.DeleteBookSubCategory)
 	}
 
 	//Book end points
