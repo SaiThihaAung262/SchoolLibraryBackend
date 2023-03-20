@@ -57,7 +57,7 @@ func (db *borrowConnection) GetBorrowingAndExpireData(req *dto.BorrowHistoryRequ
 		filter += fmt.Sprintf(" and user_uuid = '%s'", req.UserUUID)
 	}
 
-	filter += fmt.Sprintf(" and status = %d and %d", 1, 3)
+	filter += fmt.Sprintf(" and status = %d or status = %d", 1, 3)
 
 	sql := fmt.Sprintf("select * from borrows %s order by created_at desc limit %v offset %v", filter, pageSize, offset)
 	res := db.connection.Raw(sql).Scan(&borrowHistory)
