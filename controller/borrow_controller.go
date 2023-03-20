@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -72,6 +73,21 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 	// 	ctx.JSON(http.StatusOK, response)
 	// 	return
 	// }
+	//*Get expired count with uuid
+
+	reqExpiredCountDto := &dto.BorrowHistoryRequest{
+		UserUUID: createDto.UserUUID,
+		Status:   model.BookBorrowExpireStatus,
+	}
+
+	_, expiredCount, errGetExpiredCount := c.borrowService.GetBorrowHistory(reqExpiredCountDto)
+	if errGetExpiredCount != nil {
+		response := helper.ResponseErrorData(500, errDto.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	fmt.Println("here is expired Count!", expiredCount)
 
 	//*---------------Check is book exist---------------
 	book, errGetBook := c.bookService.GetBookByUUID(createDto.BookUUID)
@@ -126,6 +142,12 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 	if createDto.Type == model.TeacherBorrow {
 
 		//*Check can borrowcount is greather than or equal borrowing count
+		if uint64(borrowingCount) >= configData.TeacherCanBorrowCount && expiredCount > 0 {
+			respMsg := fmt.Sprintf("Borrowing Limit is full and there has %d expired borrow book", expiredCount)
+			response := helper.ResponseErrorData(500, respMsg)
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
 		if uint64(borrowingCount) >= configData.TeacherCanBorrowCount {
 			response := helper.ResponseErrorData(500, "Borrowing Limit is Full!")
 			ctx.JSON(http.StatusOK, response)
@@ -148,6 +170,12 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 	} else if createDto.Type == model.StudentBorrow {
 
 		//*Check can borrowcount is greather than or equal borrowing count
+		if uint64(borrowingCount) >= configData.StudentCanBorrowCount && expiredCount > 0 {
+			respMsg := fmt.Sprintf("Borrowing Limit is full and there has %d expired borrow book", expiredCount)
+			response := helper.ResponseErrorData(500, respMsg)
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
 		if uint64(borrowingCount) >= configData.StudentCanBorrowCount {
 			response := helper.ResponseErrorData(500, "Borrowing limit is Full!")
 			ctx.JSON(http.StatusOK, response)
@@ -170,6 +198,12 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 	} else if createDto.Type == model.StaffBorrow {
 
 		//*Check can borrowcount is greather than or equal borrowing count
+		if uint64(borrowingCount) >= configData.StaffCanBorrowCount && expiredCount > 0 {
+			respMsg := fmt.Sprintf("Borrowing Limit is full and there has %d expired borrow book", expiredCount)
+			response := helper.ResponseErrorData(500, respMsg)
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
 		if uint64(borrowingCount) >= configData.StaffCanBorrowCount {
 			response := helper.ResponseErrorData(500, "Borrowing limit is Full!")
 			ctx.JSON(http.StatusOK, response)
