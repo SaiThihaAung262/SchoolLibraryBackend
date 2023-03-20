@@ -69,8 +69,8 @@ func (db *bookConnection) GetAllBooks(req *dto.BookGetRequest) ([]model.Book, in
 
 	}
 
-	if req.CategorID != 0 {
-		filter += fmt.Sprintf(" and category_id = %d", req.CategorID)
+	if req.SubCategorID != 0 {
+		filter += fmt.Sprintf(" and category_id = %d", req.SubCategorID)
 
 	}
 
@@ -120,10 +120,10 @@ func (db *bookConnection) UpdateBook(book model.Book) (*model.Book, error) {
 	fmt.Println("---------------Book borrow qty---------", book.BorrowQty)
 
 	err := db.connection.Model(&book).Where("id = ?", book.ID).Updates(model.Book{
-		Title:      book.Title,
-		CategoryID: book.CategoryID,
-		Author:     book.Author,
-		Summary:    book.Summary,
+		Title:         book.Title,
+		SubCategoryID: book.SubCategoryID,
+		Author:        book.Author,
+		Summary:       book.Summary,
 		// Status:       book.Status,
 		Status:       status,
 		BookImage:    book.BookImage,
