@@ -17,6 +17,7 @@ type TeacherService interface {
 	DeleteTeacher(id uint64) error
 	GetTeacherByUUID(uuid string) (*model.Teacher, error)
 	VerifyLogin(name string, password string) interface{}
+	ChangePassword(id uint64, password string) error
 }
 type teacherService struct {
 	teacherRepo repository.TeacherRepository
@@ -87,4 +88,8 @@ func (service teacherService) VerifyLogin(email string, password string) interfa
 		return false
 	}
 	return false
+}
+
+func (service teacherService) ChangePassword(id uint64, password string) error {
+	return service.teacherRepo.ChangePassword(id, password)
 }

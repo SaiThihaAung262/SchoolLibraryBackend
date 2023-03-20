@@ -5,7 +5,6 @@ import (
 
 	"MyGO.com/m/config"
 	"MyGO.com/m/controller"
-	"MyGO.com/m/middleware"
 	"MyGO.com/m/repository"
 	"MyGO.com/m/service"
 	"github.com/gin-gonic/gin"
@@ -200,7 +199,7 @@ func InitRoute() {
 
 	//Client user end points
 	clientUserRoutes := apiRoutes.Group("user")
-	clientUserRoutes.Use(middleware.AuthorizeJWT(jwtService))
+	// clientUserRoutes.Use(middleware.AuthorizeJWT(jwtService))
 	{
 		clientUserRoutes.GET("/get-books", bookController.GetAllBooks)
 		clientUserRoutes.GET("/get-book-detail", borrowController.GetBookByUUID)
@@ -208,6 +207,8 @@ func InitRoute() {
 		clientUserRoutes.GET("/get-user", clientAuthController.GetClientByUUID)
 		clientUserRoutes.GET("/get-borrow-history", borrowController.GetBorrowHistory)
 		clientUserRoutes.POST("/borrow-book", borrowController.CreateBorrow)
+		clientUserRoutes.POST("/change-password", clientAuthController.ChangePassword)
+
 	}
 
 	//Media end points

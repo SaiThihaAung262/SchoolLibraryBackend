@@ -150,6 +150,12 @@ func (db *userConnection) GetUserDashBoard() (*dto.DashboardResponse, error) {
 		return nil, err
 	}
 
+	var staffCount int64
+	staffCountSQL := "select count(1) from staffs where deleted_at IS NULL"
+	if err := db.connection.Raw(staffCountSQL).Scan(&staffCount).Error; err != nil {
+		return nil, err
+	}
+
 	var bookCount int64
 	bookCountSQL := "select count(1) from books where deleted_at IS NULL"
 	if err := db.connection.Raw(bookCountSQL).Scan(&bookCount).Error; err != nil {
@@ -180,14 +186,22 @@ func (db *userConnection) GetUserDashBoard() (*dto.DashboardResponse, error) {
 		return nil, err
 	}
 
+	var expired_count int64
+	expiredCountSQL := "select count(1) from borrows where status = 3 and deleted_at IS NULL"
+	if err := db.connection.Raw(expiredCountSQL).Scan(&expired_count).Error; err != nil {
+		return nil, err
+	}
+
 	dashboardData.TotalAdmin = adminCount
 	dashboardData.TotalTeacher = teacherCount
 	dashboardData.TotalStudent = studentCount
+	dashboardData.TotalStaff = staffCount
 	dashboardData.TotalBook = bookCount
 	dashboardData.TotalCategory = categoryCount
 	dashboardData.TotalBorrow = totalBorrowCount
 	dashboardData.UnderBorrow = underBorrowing
 	dashboardData.HaveReturned = haveReturned
+	dashboardData.ExpiredCount = expired_count
 	return dashboardData, nil
 }
 

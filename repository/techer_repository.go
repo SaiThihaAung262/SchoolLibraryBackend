@@ -15,6 +15,7 @@ type TeacherRepository interface {
 	DeleteTeacher(id uint64) error
 	GetTeacherByUUID(uuid string) (*model.Teacher, error)
 	VerifyLogin(name string) interface{}
+	ChangePassword(id uint64, password string) error
 }
 
 type teacherConnection struct {
@@ -130,6 +131,22 @@ func (db *teacherConnection) VerifyLogin(name string) interface{} {
 
 	if res.Error == nil {
 		return teacher
+	}
+	return nil
+}
+
+func (db *teacherConnection) ChangePassword(id uint64, password string) error {
+	updateTeacher := model.Teacher{}
+
+	fmt.Println("----------Hre is punishent ID--------", id)
+
+	err := db.connection.Model(&updateTeacher).Where("id = ?", id).Select("password").Updates(model.Teacher{
+		Password: password,
+	}).Error
+
+	if err != nil {
+		fmt.Println("----Here have error in update borrow qty book repo -----")
+		return err
 	}
 	return nil
 }

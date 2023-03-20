@@ -105,6 +105,10 @@ func (db *borrowConnection) GetBorrowHistory(req *dto.BorrowHistoryRequest) ([]m
 		filter += fmt.Sprintf(" and status = %d", req.Status)
 	}
 
+	if req.Type != 0 {
+		filter += fmt.Sprintf(" and type = %d", req.Type)
+	}
+
 	if req.UserUUID != "" {
 		filter += fmt.Sprintf(" and user_uuid = '%s'", req.UserUUID)
 	}

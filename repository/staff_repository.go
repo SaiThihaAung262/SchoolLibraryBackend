@@ -15,6 +15,7 @@ type StaffRepository interface {
 	DeleteStaff(id uint64) error
 	GetStaffByUUID(uuid string) (*model.Staff, error)
 	VerifyLogin(name string) interface{}
+	ChangePassword(id uint64, password string) error
 }
 
 type staffConnection struct {
@@ -130,6 +131,22 @@ func (db *staffConnection) VerifyLogin(name string) interface{} {
 
 	if res.Error == nil {
 		return staff
+	}
+	return nil
+}
+
+func (db *staffConnection) ChangePassword(id uint64, password string) error {
+	updateStaff := model.Staff{}
+
+	fmt.Println("----------Hre is punishent ID--------", id)
+
+	err := db.connection.Model(&updateStaff).Where("id = ?", id).Select("password").Updates(model.Staff{
+		Password: password,
+	}).Error
+
+	if err != nil {
+		fmt.Println("----Here have error in update borrow qty book repo -----")
+		return err
 	}
 	return nil
 }

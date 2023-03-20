@@ -9,10 +9,10 @@ type StaffRegisterDTO struct {
 
 type UpdateStaffDTO struct {
 	ID         uint64 `json:"id" form:"id" binding:"required"`
-	Name       string `json:"name" form:"name" binding:"required"`
-	Email      string `json:"email" form:"email" binding:"required"`
-	Password   string `json:"password" form:"password" binding:"required"`
-	UUID       string `json:"uuid" form:"uuid" binding:"required"`
+	Name       string `json:"name" form:"name"`
+	Email      string `json:"email" form:"email"`
+	Password   string `json:"password" form:"password"`
+	UUID       string `json:"uuid" form:"uuid"`
 	Department uint64 `json:"department" form:"department"`
 }
 

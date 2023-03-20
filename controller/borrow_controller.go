@@ -170,17 +170,17 @@ func (c borrowController) CreateBorrow(ctx *gin.Context) {
 	} else if createDto.Type == model.StaffBorrow {
 
 		//*Check can borrowcount is greather than or equal borrowing count
-		if uint64(borrowingCount) >= configData.StudentCanBorrowCount {
+		if uint64(borrowingCount) >= configData.StaffCanBorrowCount {
 			response := helper.ResponseErrorData(500, "Borrowing limit is Full!")
 			ctx.JSON(http.StatusOK, response)
 			return
 		}
 
-		//*Get student by UUID
+		//*Get staff by UUID
 		staff, errGetStaff := c.staffService.GetStaffByUUID(createDto.UserUUID)
 		if errGetStaff != nil {
 			if criteria.IsErrNotFound(errGetStaff) {
-				response := helper.ResponseErrorData(500, "Cannot find student")
+				response := helper.ResponseErrorData(500, "Cannot find staff")
 				ctx.JSON(http.StatusOK, response)
 				return
 			}
@@ -339,6 +339,28 @@ func (c borrowController) GetBorrowHistory(ctx *gin.Context) {
 			}
 
 			responseData.ExpiredAt = helper.CalculatExpireDate(item.CreatedAt, int(configData.StudentCanBorrowDay))
+		} else if item.Type == model.StaffBorrow {
+			staff, errGetStaff := c.staffService.GetStaffByUUID(item.UserUUID)
+			if errGetStaff != nil {
+				if criteria.IsErrNotFound(errGetStaff) {
+					response := helper.ResponseErrorData(500, "Cannot find teacher")
+					ctx.JSON(http.StatusOK, response)
+					return
+				}
+				response := helper.ResponseErrorData(500, errGetStaff.Error())
+				ctx.JSON(http.StatusOK, response)
+				return
+			}
+
+			err := smapping.FillStruct(&borrowUser, smapping.MapFields(&staff))
+			if err != nil {
+				response := helper.ResponseErrorData(500, err.Error())
+				ctx.JSON(http.StatusOK, response)
+				return
+			}
+
+			responseData.ExpiredAt = helper.CalculatExpireDate(item.CreatedAt, int(configData.StaffCanBorrowDay))
+
 		}
 
 		responseData.ID = item.ID
@@ -384,6 +406,8 @@ func CalcExpireDayAndPunishAmt(c borrowController, ctx *gin.Context, expireTime 
 				punishmentAmt = item.TeacherPunishAmount
 			} else if data.Type == model.StudentBorrow {
 				punishmentAmt = item.StudentPunishAmount
+			} else if data.Type == model.StaffBorrow {
+				punishmentAmt = item.StaffPunishAmount
 			}
 		}
 
@@ -400,7 +424,8 @@ func CalcExpireDayAndPunishAmt(c borrowController, ctx *gin.Context, expireTime 
 				punishmentAmt = expiredDayOrWeekOryear * item.TeacherPunishAmount
 			} else if data.Type == model.StudentBorrow {
 				punishmentAmt = expiredDayOrWeekOryear * item.StudentPunishAmount
-
+			} else if data.Type == model.StaffBorrow {
+				punishmentAmt = expiredDayOrWeekOryear * item.StaffPunishAmount
 			}
 
 		}
@@ -501,12 +526,18 @@ func (c borrowController) GetBookSummaryData(ctx *gin.Context) {
 	//*----------Bind Book req dto with req Summary dto----------
 	err := smapping.FillStruct(&reqBookDto, smapping.MapFields(&reqSummaryDto))
 	if err != nil {
+		response := helper.ResponseErrorData(500, err.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
 	}
 
 	//*----------Request Summary Data dto----------
 	reqSummaryDataDto := &dto.ReqBorrowCountByBookUUIDAndDateDto{}
 	errReqSummaryDataDto := smapping.FillStruct(&reqSummaryDataDto, smapping.MapFields(&reqSummaryDto))
 	if errReqSummaryDataDto != nil {
+		response := helper.ResponseErrorData(500, errReqSummaryDataDto.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
 	}
 
 	//*Get all books

@@ -17,6 +17,7 @@ type StaffService interface {
 	DeleteStaff(id uint64) error
 	GetStaffByUUID(uuid string) (*model.Staff, error)
 	VerifyLogin(name string, password string) interface{}
+	ChangePassword(id uint64, password string) error
 }
 type staffService struct {
 	staffRepo repository.StaffRepository
@@ -87,4 +88,8 @@ func (service staffService) VerifyLogin(email string, password string) interface
 		return false
 	}
 	return false
+}
+
+func (service staffService) ChangePassword(id uint64, password string) error {
+	return service.staffRepo.ChangePassword(id, password)
 }

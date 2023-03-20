@@ -10,12 +10,12 @@ type StudentRegisterDTO struct {
 
 type UpdateStudentDTO struct {
 	ID       uint64 `json:"id" form:"id" binding:"required"`
-	Name     string `json:"name" form:"name" binding:"required"`
-	Email    string `json:"email" form:"email" binding:"required"`
-	Password string `json:"password" form:"password" binding:"required"`
-	UUID     string `json:"uuid" form:"uuid" binding:"required"`
-	RoleNo   string `json:"role_no" form:"role_no" binding:"required"`
-	Year     uint64 `json:"year" form:"year" binding:"required"`
+	Name     string `json:"name" form:"name"`
+	Email    string `json:"email" form:"email"`
+	Password string `json:"password" form:"password"`
+	UUID     string `json:"uuid" form:"uuid"`
+	RoleNo   string `json:"role_no" form:"role_no"`
+	Year     uint64 `json:"year" form:"year"`
 }
 
 type StudentGetRequest struct {

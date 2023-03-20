@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -15,6 +16,7 @@ import (
 type ClientAuthController interface {
 	ClientLogin(ctx *gin.Context)
 	GetClientByUUID(ctx *gin.Context)
+	ChangePassword(ctx *gin.Context)
 }
 
 type clientAuthController struct {
@@ -153,7 +155,7 @@ func (c clientAuthController) GetClientByUUID(ctx *gin.Context) {
 		}
 		responseData.UserData = student
 
-	} else if getDto.Type == model.StaffBorrow {
+	} else if getDto.Type == model.StaffLoginType {
 		staff, errGetStudent := c.staffService.GetStaffByUUID(getDto.UUID)
 		if errGetStudent != nil {
 			if criteria.IsErrNotFound(errGetStudent) {
@@ -170,5 +172,69 @@ func (c clientAuthController) GetClientByUUID(ctx *gin.Context) {
 
 	respnse := helper.ResponseData(0, "success", responseData)
 	ctx.JSON(http.StatusOK, respnse)
+
+}
+
+func (c clientAuthController) ChangePassword(ctx *gin.Context) {
+	var updatePassDto dto.ChangePasswordDto
+
+	errDTO := ctx.ShouldBind(&updatePassDto)
+	if errDTO != nil {
+		response := helper.ResponseErrorData(503, errDTO.Error())
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	fmt.Println("Here is the username and password", updatePassDto.ID, updatePassDto.Password, updatePassDto.Emial)
+	if updatePassDto.Type == model.TeacherLoginType {
+		loginResult := c.teacherService.VerifyLogin(updatePassDto.Emial, updatePassDto.Password)
+		if _, ok := loginResult.(model.Teacher); ok {
+
+			err := c.teacherService.ChangePassword(updatePassDto.ID, updatePassDto.NewPassword)
+			if err != nil {
+				response := helper.ResponseErrorData(504, err.Error())
+				ctx.JSON(http.StatusOK, response)
+				return
+			}
+
+			response := helper.ResponseData(0, "Change Password successful", helper.EmptyObj{})
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+
+	} else if updatePassDto.Type == model.StudentLoginType {
+		loginResult := c.studentService.VerifyLogin(updatePassDto.Emial, updatePassDto.Password)
+		if _, ok := loginResult.(model.Student); ok {
+
+			err := c.studentService.ChangePassword(updatePassDto.ID, updatePassDto.NewPassword)
+			if err != nil {
+				response := helper.ResponseErrorData(504, err.Error())
+				ctx.JSON(http.StatusOK, response)
+				return
+			}
+
+			response := helper.ResponseData(0, "Change Password successful", helper.EmptyObj{})
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+	} else if updatePassDto.Type == model.StaffLoginType {
+		loginResult := c.staffService.VerifyLogin(updatePassDto.Emial, updatePassDto.Password)
+		if _, ok := loginResult.(model.Staff); ok {
+
+			err := c.staffService.ChangePassword(updatePassDto.ID, updatePassDto.NewPassword)
+			if err != nil {
+				response := helper.ResponseErrorData(504, err.Error())
+				ctx.JSON(http.StatusOK, response)
+				return
+			}
+
+			response := helper.ResponseData(0, "Change Password successful", helper.EmptyObj{})
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
+	}
+
+	response := helper.ResponseErrorData(504, "Old password is wrong!")
+	ctx.JSON(http.StatusOK, response)
 
 }
