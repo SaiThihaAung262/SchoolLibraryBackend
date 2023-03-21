@@ -92,7 +92,7 @@ func (db *bookSubCategoryConnection) UpdateBookSubCategory(subCategory model.Boo
 	err := db.connection.Model(&subCategory).Where("id = ?", subCategory.ID).Updates(model.BookSubCategory{
 		CategoryID:      subCategory.CategoryID,
 		SubCategoryName: subCategory.SubCategoryName,
-		Description:     subCategory.Description,
+		// Description:     subCategory.Description,
 	}).Error
 	if err != nil {
 		fmt.Println("Error at update book category repository----")

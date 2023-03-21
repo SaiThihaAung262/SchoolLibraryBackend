@@ -435,6 +435,16 @@ func CalcExpireDayAndPunishAmt(c borrowController, ctx *gin.Context, expireTime 
 	}
 
 	for _, item := range punishmentLists {
+		// if expiredDay <= item.DurationEnd {
+		// 	if data.Type == model.TeacherBorrow {
+		// 		punishmentAmt = item.TeacherPunishAmount
+		// 	} else if data.Type == model.StudentBorrow {
+		// 		punishmentAmt = item.StudentPunishAmount
+		// 	} else if data.Type == model.StaffBorrow {
+		// 		punishmentAmt = item.StaffPunishAmount
+		// 	}
+		// }
+
 		if expiredDay >= item.DurationStart && expiredDay < item.DurationEnd && expiredDay < punishmentLists[0].DurationEnd {
 			if data.Type == model.TeacherBorrow {
 				punishmentAmt = item.TeacherPunishAmount
@@ -445,7 +455,7 @@ func CalcExpireDayAndPunishAmt(c borrowController, ctx *gin.Context, expireTime 
 			}
 		}
 
-		if expiredDay > item.DurationEnd {
+		if expiredDay >= item.DurationEnd {
 			var expiredDayOrWeekOryear uint64
 			myRemainDay := expiredDay % item.DurationEnd
 			if myRemainDay > 0 {
